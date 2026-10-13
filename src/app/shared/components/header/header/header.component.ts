@@ -15,6 +15,8 @@ import {
   selectCartItemCount
 } from '../../../../store/cart/cart.selectors';
 
+import { ToastService } from '../../../../core/services/toast.service';
+
 
 @Component({
   selector: 'app-header',
@@ -35,6 +37,8 @@ export class HeaderComponent {
   private store = inject(Store);
 
   private router = inject(Router);
+
+  private toastService = inject(ToastService);
 
 
   // =====================================================
@@ -84,6 +88,34 @@ export class HeaderComponent {
   get isLoggedIn(): boolean {
 
     return !!localStorage.getItem('token');
+
+  }
+
+
+  // =====================================================
+  // LOGGED-IN USER NAME
+  // =====================================================
+
+  get userName(): string {
+
+    const userData =
+      localStorage.getItem('user');
+
+    if (!userData) {
+      return '';
+    }
+
+    try {
+
+      const user = JSON.parse(userData);
+
+      return user?.name || '';
+
+    } catch {
+
+      return '';
+
+    }
 
   }
 
@@ -168,6 +200,10 @@ export class HeaderComponent {
   }
 
 
+  // =====================================================
+  // ACCOUNT
+  // =====================================================
+
   goToAccount(): void {
 
     this.closeAllMenus();
@@ -179,6 +215,10 @@ export class HeaderComponent {
   }
 
 
+  // =====================================================
+  // LOGIN
+  // =====================================================
+
   goToLogin(): void {
 
     this.closeAllMenus();
@@ -189,6 +229,10 @@ export class HeaderComponent {
 
   }
 
+
+  // =====================================================
+  // REGISTER
+  // =====================================================
 
   goToRegister(): void {
 
@@ -219,6 +263,10 @@ export class HeaderComponent {
     localStorage.removeItem('userId');
 
     this.closeAllMenus();
+
+    this.toastService.success(
+      'You have been logged out.'
+    );
 
     this.router.navigate([
       '/auth'
@@ -273,8 +321,6 @@ export class HeaderComponent {
 
   // =====================================================
   // CLOSE ALL MENUS
-  // IMPORTANT:
-  // This cannot be private because HTML calls it.
   // =====================================================
 
   closeAllMenus(): void {

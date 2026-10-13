@@ -100,7 +100,7 @@
 
 
 /* =====================================================
-   PROFILE
+   PROFILE SECTION
 ===================================================== */
 
 .profile-section {
@@ -108,6 +108,201 @@
   background: #E8E1D2;
   border: 1px solid rgba(125, 139, 116, 0.25);
 }
+
+
+/* =====================================================
+   PROFILE HEADING + EDIT PROFILE BUTTON
+===================================================== */
+
+.profile-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.edit-profile-button {
+  border: 1px solid #7D8B74;
+  background: #7D8B74;
+  color: #F7F4EC;
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.edit-profile-button:hover {
+  background: #B8955A;
+  border-color: #B8955A;
+  color: #292A25;
+  transform: translateY(-2px);
+}
+
+
+/* =====================================================
+   PROFILE LAYOUT
+===================================================== */
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+}
+
+
+/* =====================================================
+   PROFILE PHOTO
+===================================================== */
+
+.profile-photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.profile-photo-wrapper {
+  position: relative;
+  width: 145px;
+  height: 145px;
+  margin-bottom: 16px;
+}
+
+.profile-photo,
+.profile-photo-placeholder {
+  width: 145px;
+  height: 145px;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.profile-photo {
+  display: block;
+  object-fit: cover;
+  border: 4px solid #F7F4EC;
+  outline: 1px solid #B8955A;
+}
+
+.profile-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #7D8B74;
+  border: 4px solid #F7F4EC;
+  outline: 1px solid #B8955A;
+}
+
+.profile-photo-placeholder span {
+  color: #F7F4EC;
+  font-size: 48px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.profile-photo-input {
+  display: none;
+}
+
+
+/* =====================================================
+   PHOTO CAMERA BUTTON
+===================================================== */
+
+.photo-camera-button {
+  position: absolute;
+  right: 2px;
+  bottom: 4px;
+  width: 36px;
+  height: 36px;
+  border: 2px solid #F7F4EC;
+  border-radius: 50%;
+  background: #B8955A;
+  color: #292A25;
+  font-size: 21px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.photo-camera-button:hover {
+  background: #7D8B74;
+  color: #F7F4EC;
+  transform: scale(1.06);
+}
+
+.profile-photo-section h3 {
+  margin: 0 0 5px;
+  color: #292A25;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.profile-photo-section > p {
+  margin: 0;
+  color: #7D8B74;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   PHOTO ACTIONS
+===================================================== */
+
+.photo-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.photo-upload-button,
+.photo-remove-button {
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.photo-upload-button {
+  border: 1px solid #7D8B74;
+  background: #7D8B74;
+  color: #F7F4EC;
+}
+
+.photo-upload-button:hover {
+  background: #B8955A;
+  border-color: #B8955A;
+  color: #292A25;
+}
+
+.photo-remove-button {
+  border: 1px solid rgba(184, 149, 90, 0.55);
+  background: transparent;
+  color: #765F32;
+}
+
+.photo-remove-button:hover {
+  background: #B8955A;
+  color: #292A25;
+}
+
+
+/* =====================================================
+   PROFILE DETAILS
+===================================================== */
 
 .profile-details {
   display: grid;
@@ -137,6 +332,47 @@
   font-size: 15px;
   font-weight: 500;
   word-break: break-word;
+}
+
+
+/* =====================================================
+   EDIT PROFILE FORM
+===================================================== */
+
+.profile-edit-form {
+  padding: 24px;
+  background: #F7F4EC;
+  border: 1px solid rgba(125, 139, 116, 0.20);
+}
+
+.profile-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+
+/* =====================================================
+   PROFILE MESSAGES
+===================================================== */
+
+.profile-success,
+.profile-error {
+  margin-top: 22px;
+  padding: 13px 16px;
+  font-size: 13px;
+}
+
+.profile-success {
+  background: rgba(125, 139, 116, 0.15);
+  border-left: 3px solid #7D8B74;
+  color: #52604B;
+}
+
+.profile-error {
+  background: rgba(184, 149, 90, 0.12);
+  border-left: 3px solid #B8955A;
+  color: #725C32;
 }
 
 
@@ -207,6 +443,29 @@
 
 
 /* =====================================================
+   SUCCESS MESSAGE FADE
+===================================================== */
+
+.profile-success,
+.address-success,
+.order-success-message {
+  animation: successIn 0.2s ease;
+}
+
+@keyframes successIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =====================================================
    ADDRESS GRID
 ===================================================== */
 
@@ -229,7 +488,8 @@
 .address-card:hover {
   transform: translateY(-3px);
   border-color: #7D8B74;
-  box-shadow: 0 12px 28px rgba(125, 139, 116, 0.14);
+  box-shadow:
+    0 12px 28px rgba(125, 139, 116, 0.14);
 }
 
 .address-card.default-address {
@@ -252,6 +512,35 @@
   color: #292A25;
   font-size: 17px;
   font-weight: 600;
+}
+
+
+/* =====================================================
+   ADDRESS BADGES
+===================================================== */
+
+.address-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.address-badges .default-badge {
+  margin-top: 0;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 5px 9px;
+  background: transparent;
+  border: 1px solid #7D8B74;
+  color: #52604B;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 
@@ -323,12 +612,6 @@
   background: #B8955A;
   border-color: #B8955A;
   color: #292A25;
-}
-
-.default-action:hover {
-  background: #7D8B74;
-  border-color: #7D8B74;
-  color: #F7F4EC;
 }
 
 .current-default {
@@ -458,6 +741,78 @@
     0 0 0 3px rgba(125, 139, 116, 0.12);
 }
 
+.form-field input.readonly-input {
+  background: #E8E1D2;
+  color: #7D8B74;
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   FIELD ERROR
+===================================================== */
+
+.field-error {
+  display: block;
+  margin-top: 2px;
+  color: #A4452C;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.form-field.has-error input,
+.form-field.has-error textarea {
+  border-color: #A4452C;
+  background: #FBF3EF;
+}
+
+.form-field.has-error input:focus,
+.form-field.has-error textarea:focus {
+  border-color: #A4452C;
+  box-shadow:
+    0 0 0 3px rgba(164, 69, 44, 0.12);
+}
+
+
+/* =====================================================
+   ADDRESS TYPE
+===================================================== */
+
+.address-type-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.address-type-option {
+  min-width: 88px;
+  padding: 10px 18px;
+  border: 1px solid rgba(125, 139, 116, 0.35);
+  background: #F7F4EC;
+  color: #292A25;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.address-type-option:hover {
+  border-color: #7D8B74;
+}
+
+.address-type-option.active {
+  background: #7D8B74;
+  border-color: #7D8B74;
+  color: #F7F4EC;
+}
+
+.form-field.has-error .address-type-options {
+  outline: 1px solid #A4452C;
+  outline-offset: 4px;
+}
+
 
 /* =====================================================
    DEFAULT CHECKBOX
@@ -532,6 +887,37 @@
 
 .orders-section {
   width: 100%;
+}
+
+
+/* =====================================================
+   ORDER SUCCESS
+===================================================== */
+
+.order-success-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  padding: 14px 17px;
+  background: rgba(125, 139, 116, 0.15);
+  border-left: 3px solid #7D8B74;
+  color: #52604B;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #7D8B74;
+  color: #F7F4EC;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 
@@ -914,7 +1300,7 @@
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -982,6 +1368,23 @@
 
 
 /* =====================================================
+   ORDERS CARD
+===================================================== */
+
+button.account-card {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-card.active {
+  border-color: #B8955A;
+}
+
+
+/* =====================================================
    LOGOUT
 ===================================================== */
 
@@ -1029,61 +1432,49 @@
 
 
 /* =====================================================
-   DELETE ADDRESS CONFIRMATION MODAL
+   DELETE ADDRESS MODAL
 ===================================================== */
 
-.delete-modal-overlay {
+.delete-modal-overlay,
+.cancel-order-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 20px;
-
   background: rgba(41, 42, 37, 0.48);
-
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-
   animation: modalOverlayIn 0.2s ease;
 }
 
-.delete-modal {
+.delete-modal,
+.cancel-order-modal {
   width: 100%;
   max-width: 430px;
   box-sizing: border-box;
-
   padding: 38px 35px;
-
   background: #F7F4EC;
   border: 1px solid rgba(184, 149, 90, 0.45);
-
-  box-shadow:
-    0 24px 60px rgba(41, 42, 37, 0.22);
-
+  box-shadow: 0 24px 60px rgba(41, 42, 37, 0.22);
   text-align: center;
-
   animation: modalIn 0.25s ease;
 }
 
 .modal-brand {
   margin: 0 0 12px;
-
   color: #B8955A;
-
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 3px;
 }
 
-.delete-modal h2 {
+.delete-modal h2,
+.cancel-order-modal h2 {
   margin: 0 0 14px;
-
   color: #292A25;
-
   font-size: 25px;
   font-weight: 600;
   letter-spacing: -0.3px;
@@ -1091,18 +1482,43 @@
 
 .modal-message {
   max-width: 350px;
-
   margin: 0 auto 30px;
-
   color: #7D8B74;
-
   font-size: 13px;
   line-height: 1.7;
 }
 
 
 /* =====================================================
-   DELETE MODAL ACTIONS
+   CANCEL ORDER MODAL
+===================================================== */
+
+.cancel-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: rgba(184, 149, 90, 0.18);
+  border: 1px solid rgba(184, 149, 90, 0.50);
+  color: #B8955A;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.cancel-order-number {
+  margin: -5px 0 15px;
+  color: #B8955A;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+
+/* =====================================================
+   MODAL ACTIONS
 ===================================================== */
 
 .modal-actions {
@@ -1111,25 +1527,27 @@
 }
 
 .cancel-delete-button,
-.confirm-delete-button {
+.confirm-delete-button,
+.keep-order-button,
+.confirm-cancel-order-button {
   flex: 1;
-
   min-height: 45px;
-
   padding: 12px 15px;
-
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-
   cursor: pointer;
-
   transition:
     background 0.25s ease,
     color 0.25s ease,
     border-color 0.25s ease,
     transform 0.25s ease;
 }
+
+
+/* =====================================================
+   ADDRESS DELETE BUTTONS
+===================================================== */
 
 .cancel-delete-button {
   border: 1px solid #7D8B74;
@@ -1150,6 +1568,36 @@
 }
 
 .confirm-delete-button:hover {
+  background: #292A25;
+  border-color: #292A25;
+  color: #F7F4EC;
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   CANCEL ORDER BUTTONS
+===================================================== */
+
+.keep-order-button {
+  border: 1px solid #7D8B74;
+  background: transparent;
+  color: #292A25;
+}
+
+.keep-order-button:hover {
+  background: #E8E1D2;
+  border-color: #7D8B74;
+  transform: translateY(-1px);
+}
+
+.confirm-cancel-order-button {
+  border: 1px solid #B8955A;
+  background: #B8955A;
+  color: #292A25;
+}
+
+.confirm-cancel-order-button:hover {
   background: #292A25;
   border-color: #292A25;
   color: #F7F4EC;
@@ -1194,12 +1642,20 @@
     padding: 45px 18px 65px;
   }
 
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
   .profile-details {
     grid-template-columns: 1fr;
   }
 
   .order-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .action-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1230,6 +1686,31 @@
   .address-form,
   .order-card {
     padding: 20px;
+  }
+
+  .profile-layout {
+    gap: 25px;
+  }
+
+  .profile-heading {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .profile-heading .edit-profile-button {
+    width: 100%;
+  }
+
+  .profile-edit-form {
+    padding: 18px;
+  }
+
+  .profile-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-type-option {
+    flex: 1;
   }
 
   .address-heading {
@@ -1301,14 +1782,18 @@
   }
 
 
-  /* DELETE MODAL */
+  /* =================================================
+     MODALS
+  ================================================= */
 
-  .delete-modal {
+  .delete-modal,
+  .cancel-order-modal {
     max-width: 100%;
     padding: 30px 22px;
   }
 
-  .delete-modal h2 {
+  .delete-modal h2,
+  .cancel-order-modal h2 {
     font-size: 22px;
   }
 
@@ -1322,7 +1807,9 @@
   }
 
   .cancel-delete-button,
-  .confirm-delete-button {
+  .confirm-delete-button,
+  .keep-order-button,
+  .confirm-cancel-order-button {
     width: 100%;
   }
 }
@@ -1361,13 +1848,13 @@
     height: 55px;
   }
 
-  /* DELETE MODAL */
-
-  .delete-modal {
+  .delete-modal,
+  .cancel-order-modal {
     padding: 27px 18px;
   }
 
-  .delete-modal h2 {
+  .delete-modal h2,
+  .cancel-order-modal h2 {
     font-size: 20px;
   }
 

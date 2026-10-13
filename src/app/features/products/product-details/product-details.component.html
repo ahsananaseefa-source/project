@@ -2,15 +2,15 @@
 
 <div class="product-details-page">
 
-  <!-- =================================
+  <!-- ==========================================
        LOGIN MESSAGE
-  ================================== -->
+  =========================================== -->
 
   @if (loginMessage) {
 
-    <div class="login-message-overlay">
+    <div class="login-message-overlay" (click)="closeLoginMessage()">
 
-      <div class="login-message">
+      <div class="login-message" (click)="$event.stopPropagation()">
 
         <button
           type="button"
@@ -21,17 +21,11 @@
           ×
         </button>
 
-        <p class="login-message-label">
-          ZELL COLLECTION
-        </p>
+        <p class="login-message-label">ZELL COLLECTION</p>
 
-        <h3>
-          Login Required
-        </h3>
+        <h3>Login Required</h3>
 
-        <p>
-          Please login to continue.
-        </p>
+        <p>Please login to continue.</p>
 
         <div class="login-message-actions">
 
@@ -60,49 +54,128 @@
   }
 
 
+  <!-- ==========================================
+       CART LIMIT MESSAGE
+  =========================================== -->
+
+  @if (cartLimitMessage) {
+
+    <div class="login-message-overlay" (click)="closeCartLimitMessage()">
+
+      <div class="login-message" (click)="$event.stopPropagation()">
+
+        <button
+          type="button"
+          class="login-message-close"
+          (click)="closeCartLimitMessage()"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+        <p class="login-message-label">ZELL COLLECTION</p>
+
+        <h3>Cart Limit Reached</h3>
+
+        <p>{{ cartLimitText }}</p>
+
+        <div class="login-message-actions">
+
+          <button
+            type="button"
+            class="continue-button"
+            (click)="closeCartLimitMessage()"
+          >
+            Continue Shopping
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <!-- ==========================================
+       PRODUCT
+  =========================================== -->
+
   @if (product$ | async; as product) {
 
-    <!-- =================================
-         PRODUCT DETAILS
-    ================================== -->
 
-    <div class="product-details-container">
+    <!-- ========================================
+         IMAGE LIGHTBOX (FULL SCREEN ZOOM)
+    ========================================= -->
 
-      <!-- PRODUCT IMAGE -->
+    @if (lightboxOpen) {
 
-      <div class="product-image">
+      <div class="lightbox-overlay" (click)="closeLightbox()">
+
+        <button
+          type="button"
+          class="lightbox-close"
+          (click)="closeLightbox()"
+          aria-label="Close image"
+        >
+          ×
+        </button>
 
         <img
+          class="lightbox-image"
           [src]="product.image"
           [alt]="product.name"
+          (click)="$event.stopPropagation()"
         >
 
       </div>
 
+    }
 
-      <!-- PRODUCT INFORMATION -->
+
+    <div class="product-details-container">
+
+
+      <!-- ========================================
+           PRODUCT IMAGE (HOVER ZOOM + CLICK)
+      ========================================= -->
+
+      <div
+        class="product-image"
+        [class.zoomed]="isZoomed"
+        (mouseenter)="onImageEnter()"
+        (mousemove)="onImageMove($event)"
+        (mouseleave)="onImageLeave()"
+        (click)="openLightbox()"
+      >
+
+        <img
+          [src]="product.image"
+          [alt]="product.name"
+          [style.transform-origin]="zoomOrigin"
+        >
+
+        <span class="zoom-hint">Click to enlarge</span>
+
+      </div>
+
+
+      <!-- ========================================
+           PRODUCT INFORMATION
+      ========================================= -->
 
       <div class="product-info">
 
-        <p class="category">
-          {{ product.category }}
-        </p>
+        <p class="category">{{ product.category }}</p>
 
-        <h1>
-          {{ product.name }}
-        </h1>
+        <h1>{{ product.name }}</h1>
 
-        <p class="price">
-          ₹{{ product.price }}
-        </p>
+        <p class="price">₹{{ product.price }}</p>
 
-        <p class="rating">
-          ★ {{ product.rating }}
-        </p>
+        <p class="rating">★ {{ product.rating }}</p>
 
-        <p class="description">
-          {{ product.description }}
-        </p>
+        <p class="description">{{ product.description }}</p>
 
 
         <!-- STOCK -->
@@ -110,13 +183,9 @@
         <p class="stock">
 
           @if (product.stock > 0) {
-
             {{ product.stock }} available
-
           } @else {
-
             Out of stock
-
           }
 
         </p>
@@ -124,172 +193,99 @@
 
         @if (product.stock > 0) {
 
-          <!-- =================================
-               QUANTITY
-          ================================== -->
-
-          <div class="quantity-section">
-
-            <span class="quantity-label">
-              Quantity
-            </span>
-
-            <div class="quantity-controls">
-
-              <button
-                type="button"
-                class="quantity-button"
-                [disabled]="quantity <= 1"
-                (click)="decreaseQuantity()"
-              >
-                −
-              </button>
+          @if (cartItems$ | async; as cartItems) {
 
 
-              <span class="quantity-value">
-                {{ quantity }}
-              </span>
+            <!-- QUANTITY -->
 
+            <div class="quantity-section">
 
-              <button
-                type="button"
-                class="quantity-button"
-                [disabled]="
-                  quantity >=
-                  getMaximumQuantity(
-                    product.stock
-                  )
-                "
-                (click)="
-                  increaseQuantity(
-                    product.stock
-                  )
-                "
-              >
-                +
-              </button>
+              <span class="quantity-label">Quantity</span>
+
+              <div class="quantity-controls">
+
+                <button
+                  type="button"
+                  class="quantity-button"
+                  aria-label="Decrease quantity"
+                  [disabled]="quantity <= 1"
+                  (click)="decreaseQuantity()"
+                >
+                  −
+                </button>
+
+                <span class="quantity-value">{{ quantity }}</span>
+
+                <button
+                  type="button"
+                  class="quantity-button"
+                  aria-label="Increase quantity"
+                  (click)="increaseQuantity(product.stock)"
+                >
+                  +
+                </button>
+
+              </div>
 
             </div>
 
 
-            <!-- QUANTITY LIMIT MESSAGE -->
+            <!-- PRODUCT ACTIONS -->
 
-            @if (
-              quantity >=
-              getMaximumQuantity(
-                product.stock
-              )
-            ) {
+            <div class="product-actions">
 
-              <p class="quantity-limit-message">
+              <button
+                type="button"
+                class="cart-button"
+                (click)="addProductToCart(product, cartItems)"
+              >
+                Add to Cart
+              </button>
 
-                @if (
-                  product.stock <
-                  MAX_CART_QUANTITY
-                ) {
+              <button
+                type="button"
+                class="buy-button"
+                (click)="buyNow(product, cartItems)"
+              >
+                Buy Now
+              </button>
 
-                  Only
-                  {{ product.stock }}
-                  items available in stock.
+
+              <!-- WISHLIST -->
+
+              @if (wishlistItems$ | async; as wishlistItems) {
+
+                @if (isInWishlist(product, wishlistItems)) {
+
+                  <button
+                    type="button"
+                    class="wishlist-button active"
+                    (click)="toggleWishlist(product, wishlistItems)"
+                  >
+                    ♥ In Wishlist
+                  </button>
 
                 } @else {
 
-                  Maximum
-                  {{ MAX_CART_QUANTITY }}
-                  items allowed for this product.
+                  <button
+                    type="button"
+                    class="wishlist-button"
+                    (click)="toggleWishlist(product, wishlistItems)"
+                  >
+                    ♡ Add to Wishlist
+                  </button>
 
                 }
 
-              </p>
-
-            }
-
-          </div>
-
-
-          <!-- =================================
-               PRODUCT ACTIONS
-          ================================== -->
-
-          <div class="product-actions">
-
-
-            <!-- ADD TO CART -->
-
-            <button
-              type="button"
-              class="cart-button"
-              [disabled]="addedToCart"
-              (click)="
-                addProductToCart(product)
-              "
-            >
-              Add to Cart
-            </button>
-
-
-            <!-- BUY NOW -->
-
-            <button
-              type="button"
-              class="buy-button"
-              (click)="
-                buyNow(product)
-              "
-            >
-              Buy Now
-            </button>
-
-
-            <!-- WISHLIST -->
-
-            @if (
-              wishlistItems$ | async;
-              as wishlistItems
-            ) {
-
-              @if (
-                isInWishlist(
-                  product,
-                  wishlistItems
-                )
-              ) {
-
-                <button
-                  type="button"
-                  class="wishlist-button active"
-                  (click)="
-                    toggleWishlist(
-                      product,
-                      wishlistItems
-                    )
-                  "
-                >
-                  ♥ In Wishlist
-                </button>
-
-              } @else {
-
-                <button
-                  type="button"
-                  class="wishlist-button"
-                  (click)="
-                    toggleWishlist(
-                      product,
-                      wishlistItems
-                    )
-                  "
-                >
-                  ♡ Add to Wishlist
-                </button>
-
               }
 
-            }
+            </div>
 
-          </div>
+          }
 
         } @else {
+
+          <!-- OUT OF STOCK -->
 
           <p class="out-of-stock-message">
             This product is currently out of stock.
@@ -302,30 +298,21 @@
     </div>
 
 
-    <!-- =================================
+    <!-- ==========================================
          SIMILAR PRODUCTS
-    ================================== -->
+    =========================================== -->
 
-    @if (
-      similarProducts$ | async;
-      as similarProducts
-    ) {
+    @if (similarProducts$ | async; as similarProducts) {
 
-      @if (
-        similarProducts.length > 0
-      ) {
+      @if (similarProducts.length > 0) {
 
         <section class="similar-products">
 
           <div class="similar-products-header">
 
-            <p>
-              ZELL COLLECTION
-            </p>
+            <p>ZELL COLLECTION</p>
 
-            <h2>
-              You May Also Like
-            </h2>
+            <h2>You May Also Like</h2>
 
             <span>
               Explore more
@@ -345,13 +332,8 @@
 
               <article
                 class="similar-product-card"
-                [routerLink]="[
-                  '/products',
-                  similarProduct.id
-                ]"
+                [routerLink]="['/products', similarProduct.id]"
               >
-
-                <!-- IMAGE -->
 
                 <div class="similar-product-image">
 
@@ -362,28 +344,19 @@
 
                 </div>
 
-
-                <!-- INFO -->
-
                 <div class="similar-product-info">
 
                   <p class="similar-product-category">
                     {{ similarProduct.category }}
                   </p>
 
-                  <h3>
-                    {{ similarProduct.name }}
-                  </h3>
+                  <h3>{{ similarProduct.name }}</h3>
 
                   <div class="similar-product-bottom">
 
-                    <strong>
-                      ₹{{ similarProduct.price }}
-                    </strong>
+                    <strong>₹{{ similarProduct.price }}</strong>
 
-                    <span>
-                      ★ {{ similarProduct.rating }}
-                    </span>
+                    <span>★ {{ similarProduct.rating }}</span>
 
                   </div>
 
@@ -403,9 +376,7 @@
 
   } @else {
 
-    <p class="not-found">
-      Product not found.
-    </p>
+    <p class="not-found">Product not found.</p>
 
   }
 

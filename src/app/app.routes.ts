@@ -6,6 +6,7 @@ import { WishlistComponent } from './features/wishlist/wishlist.component';
 import { CartComponent } from './features/cart/cart.component';
 import { ProductsComponent } from './features/products/products.component';
 import { accountGuard } from './core/guards/account.guard';
+import { NotFoundComponent } from './features/not-found/not-found.component';
 
 
 export const routes: Routes = [
@@ -186,10 +187,10 @@ export const routes: Routes = [
   // INVALID ROUTE
   // =========================
 
+ 
   {
-    path: '**',
+    path:"**",
+    component:NotFoundComponent
 
-    redirectTo: 'home'
   }
-
 ];

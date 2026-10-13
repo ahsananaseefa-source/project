@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { AsyncPipe, DatePipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { combineLatest, map, Observable } from 'rxjs';
@@ -101,6 +101,17 @@ export class WishlistComponent implements OnInit {
     );
 
 
+  // =====================================================
+  // CONFIRMATION STATE
+  // =====================================================
+
+  showClearConfirmation = false;
+
+  showRemoveConfirmation = false;
+  productToRemove: string | null = null;
+  productToRemoveName = '';
+
+
   ngOnInit(): void {
 
     this.store.dispatch(
@@ -110,22 +121,87 @@ export class WishlistComponent implements OnInit {
   }
 
 
-  removeProduct(productId: string): void {
+  // =====================================================
+  // REMOVE PRODUCT (with confirmation)
+  // =====================================================
+
+  removeProduct(
+    productId: string,
+    productName: string = ''
+  ): void {
+
+    this.productToRemove = productId;
+    this.productToRemoveName = productName;
+    this.showRemoveConfirmation = true;
+
+  }
+
+  confirmRemove(): void {
+
+    if (!this.productToRemove) {
+      return;
+    }
 
     this.store.dispatch(
       removeFromWishlist({
-        productId
+        productId: this.productToRemove
       })
     );
+
+    this.cancelRemove();
+
+  }
+
+  cancelRemove(): void {
+
+    this.showRemoveConfirmation = false;
+    this.productToRemove = null;
+    this.productToRemoveName = '';
 
   }
 
 
-  clearWishlist(): void {
+  // =====================================================
+  // CLEAR WISHLIST (with confirmation)
+  // =====================================================
+
+  openClearConfirmation(): void {
+
+    this.showClearConfirmation = true;
+
+  }
+
+  confirmClear(): void {
 
     this.store.dispatch(
       clearWishlist()
     );
+
+    this.showClearConfirmation = false;
+
+  }
+
+  cancelClear(): void {
+
+    this.showClearConfirmation = false;
+
+  }
+
+
+  // =====================================================
+  // ESCAPE KEY
+  // =====================================================
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+
+    if (this.showRemoveConfirmation) {
+      this.cancelRemove();
+    }
+
+    if (this.showClearConfirmation) {
+      this.cancelClear();
+    }
 
   }
 

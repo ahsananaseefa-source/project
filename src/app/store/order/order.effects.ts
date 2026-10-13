@@ -12,12 +12,14 @@ import {
   switchMap,
   tap
 } from 'rxjs/operators';
+
 import { Store } from '@ngrx/store';
+
 import { of } from 'rxjs';
-import { clearCart } from '../cart/cart.actions';
-import { HttpClient } from '@angular/common/http';
 
 import { Router } from '@angular/router';
+
+import { clearCart } from '../cart/cart.actions';
 
 import {
   createOrder,
@@ -34,24 +36,28 @@ import {
 
 } from './order.actions';
 
-import { Order } from '../../core/models/order.model';
+import { OrderService } from '../../core/services/order.service';
 
 
 @Injectable()
 export class OrderEffects {
 
-  private actions$ = inject(Actions);
+  private actions$ =
+    inject(Actions);
 
-  private http = inject(HttpClient);
+  private router =
+    inject(Router);
 
-  private router = inject(Router);
-  
-   private store = inject(Store)
-  private apiUrl =
-    'http://localhost:3000/order';
+  private store =
+    inject(Store);
+
+  private orderService =
+    inject(OrderService);
 
 
+  // =====================================================
   // CREATE ORDER
+  // =====================================================
 
   createOrder$ = createEffect(() =>
 
@@ -61,18 +67,17 @@ export class OrderEffects {
 
       switchMap(({ order }) =>
 
-        this.http
-          .post<Order>(
-            this.apiUrl,
-            order
-          )
+        this.orderService
+          .createOrder(order)
 
           .pipe(
 
             map(createdOrder =>
 
               createOrderSuccess({
+
                 order: createdOrder
+
               })
 
             ),
@@ -80,9 +85,15 @@ export class OrderEffects {
             catchError(error =>
 
               of(
+
                 createOrderFailure({
-                  error: error.message
+
+                  error:
+                    error?.message ??
+                    'Unable to create order.'
+
                 })
+
               )
 
             )
@@ -96,7 +107,10 @@ export class OrderEffects {
   );
 
 
-  // ORDER SUCCESS  + CLEAR CART
+  // =====================================================
+  // ORDER SUCCESS
+  // CLEAR CART + NAVIGATE
+  // =====================================================
 
   orderSuccess$ = createEffect(
 
@@ -108,8 +122,9 @@ export class OrderEffects {
 
         tap(() => {
 
-
-          this.store.dispatch(clearCart());
+          this.store.dispatch(
+            clearCart()
+          );
 
           this.router.navigate([
             '/order-success'
@@ -126,9 +141,9 @@ export class OrderEffects {
   );
 
 
-
-
+  // =====================================================
   // LOAD ORDERS
+  // =====================================================
 
   loadOrders$ = createEffect(() =>
 
@@ -138,17 +153,17 @@ export class OrderEffects {
 
       switchMap(() =>
 
-        this.http
-          .get<Order[]>(
-            this.apiUrl
-          )
+        this.orderService
+          .getOrders()
 
           .pipe(
 
             map(orders =>
 
               loadOrdersSuccess({
-                orders: orders
+
+                orders
+
               })
 
             ),
@@ -156,9 +171,15 @@ export class OrderEffects {
             catchError(error =>
 
               of(
+
                 loadOrdersFailure({
-                  error: error.message
+
+                  error:
+                    error?.message ??
+                    'Unable to load orders.'
+
                 })
+
               )
 
             )
@@ -172,7 +193,9 @@ export class OrderEffects {
   );
 
 
+  // =====================================================
   // CANCEL ORDER
+  // =====================================================
 
   cancelOrder$ = createEffect(() =>
 
@@ -180,37 +203,29 @@ export class OrderEffects {
 
       ofType(cancelOrder),
 
-      switchMap(({ orderId }) =>
+      switchMap(({ orderId, reason }) =>
 
-        this.http
-          .get<Order>(
-            `${this.apiUrl}/${orderId}`
-          )
+        this.orderService
+          .getOrderById(orderId)
 
           .pipe(
 
-            switchMap(order => {
+            switchMap(() =>
 
-              const updatedOrder: Order = {
+              this.orderService
+                .cancelOrder(
+                  orderId,
+                  reason
+                )
 
-                ...order,
-
-                status: 'Cancelled'
-
-              };
-
-              return this.http
-                .put<Order>(
-                  `${this.apiUrl}/${orderId}`,
-                  updatedOrder
-                );
-
-            }),
+            ),
 
             map(updatedOrder =>
 
               cancelOrderSuccess({
+
                 order: updatedOrder
+
               })
 
             ),
@@ -218,9 +233,15 @@ export class OrderEffects {
             catchError(error =>
 
               of(
+
                 cancelOrderFailure({
-                  error: error.message
+
+                  error:
+                    error?.message ??
+                    'Unable to cancel order.'
+
                 })
+
               )
 
             )

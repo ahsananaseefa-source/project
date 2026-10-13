@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, OnInit, inject } from '@angular/core';
 
 import { AsyncPipe } from '@angular/common';
 
@@ -26,9 +26,7 @@ import {
   loadWishlist
 } from '../../store/wishlist/wishlist.actions';
 
-import {
-  selectWishlistItems
-} from '../../store/wishlist/wishlist.selectors';
+import { selectWishlistItems } from '../../store/wishlist/wishlist.selectors';
 
 import { Product } from '../../core/models/product.model';
 
@@ -51,9 +49,39 @@ import { WishlistItem } from '../../core/models/wishlist-item.models';
 
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
   private store = inject(Store);
+
+
+  // =====================================================
+  // STAY ON HOME WHEN BACK IS PRESSED
+  // =====================================================
+
+  private homeUrl = '';
+
+  ngOnInit(): void {
+
+    // Remember the home URL and add one extra history entry,
+    // so the back button has something to land on (still home)
+    this.homeUrl = location.href;
+
+    history.pushState(history.state, '', this.homeUrl);
+
+  }
+
+  @HostListener('window:popstate')
+  onBackPressed(): void {
+
+    // Only block back while the user is really on the home page.
+    // If the URL is different, let the router work normally.
+    if (location.href === this.homeUrl) {
+
+      history.pushState(history.state, '', this.homeUrl);
+
+    }
+
+  }
 
 
   // =====================================================
@@ -71,68 +99,50 @@ export class HomeComponent {
 
 
   // =====================================================
+  // PAGINATION
+  // =====================================================
+
+  currentPage = 1;
+
+  productsPerPage = 6;
+
+
+  // =====================================================
   // PRODUCTS
   // =====================================================
 
-  private allProducts$ =
-    this.store.select(
-      selectAllProducts
-    );
+  private allProducts$ = this.store.select(selectAllProducts);
 
 
   // =====================================================
-  // FEATURED PRODUCTS
-  // HIGHEST RATING FIRST
+  // FEATURED PRODUCTS (HIGHEST RATING FIRST)
   // =====================================================
 
-  products$ =
-    this.allProducts$.pipe(
+  products$ = this.allProducts$.pipe(
 
-      map(products => {
+    map(products =>
+      [...products].sort(
+        (a, b) => Number(b.rating) - Number(a.rating)
+      )
+    )
 
-        return [...products]
-
-          .sort(
-            (a, b) =>
-              Number(b.rating) -
-              Number(a.rating)
-          )
-
-          .slice(0, 6);
-
-      })
-
-    );
+  );
 
 
   // =====================================================
-  // LOADING
+  // LOADING / ERROR
   // =====================================================
 
-  loading$ =
-    this.store.select(
-      selectProductsLoading
-    );
+  loading$ = this.store.select(selectProductsLoading);
 
-
-  // =====================================================
-  // ERROR
-  // =====================================================
-
-  error$ =
-    this.store.select(
-      selectProductsError
-    );
+  error$ = this.store.select(selectProductsError);
 
 
   // =====================================================
   // WISHLIST
   // =====================================================
 
-  wishlistItems$ =
-    this.store.select(
-      selectWishlistItems
-    );
+  wishlistItems$ = this.store.select(selectWishlistItems);
 
 
   // =====================================================
@@ -141,73 +151,89 @@ export class HomeComponent {
 
   constructor() {
 
-    // Load products
+    this.store.dispatch(loadProducts());
 
-    this.store.dispatch(
-      loadProducts()
-    );
-
-
-    // Load wishlist
-
-    this.store.dispatch(
-      loadWishlist()
-    );
+    this.store.dispatch(loadWishlist());
 
   }
 
 
   // =====================================================
-  // CHECK WISHLIST
+  // PAGINATION
   // =====================================================
 
-  isInWishlist(
-    product: Product,
-    wishlistItems: WishlistItem[]
-  ): boolean {
+  getPaginatedProducts(products: Product[]): Product[] {
 
-    return wishlistItems.some(
-      item =>
-        item.productId ===
-        product.id
+    const startIndex = (this.currentPage - 1) * this.productsPerPage;
+
+    return products.slice(
+      startIndex,
+      startIndex + this.productsPerPage
     );
+
+  }
+
+  getTotalPages(products: Product[]): number {
+
+    return Math.ceil(products.length / this.productsPerPage);
+
+  }
+
+  getPageNumbers(products: Product[]): number[] {
+
+    return Array.from(
+      { length: this.getTotalPages(products) },
+      (_, index) => index + 1
+    );
+
+  }
+
+  changePage(page: number): void {
+
+    this.currentPage = page;
+
+  }
+
+  previousPage(): void {
+
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+
+  }
+
+  nextPage(products: Product[]): void {
+
+    if (this.currentPage < this.getTotalPages(products)) {
+      this.currentPage++;
+    }
 
   }
 
 
   // =====================================================
-  // TOGGLE WISHLIST
+  // WISHLIST
   // =====================================================
 
-  toggleWishlist(
-    product: Product,
-    wishlistItems: WishlistItem[]
-  ): void {
+  isInWishlist(product: Product, wishlistItems: WishlistItem[]): boolean {
 
-    const alreadyInWishlist =
-      this.isInWishlist(
-        product,
-        wishlistItems
-      );
+    return wishlistItems.some(item => item.productId === product.id);
 
+  }
 
-    if (alreadyInWishlist) {
+  toggleWishlist(product: Product, wishlistItems: WishlistItem[]): void {
+
+    if (this.isInWishlist(product, wishlistItems)) {
 
       this.store.dispatch(
-        removeFromWishlist({
-          productId:
-            product.id
-        })
+        removeFromWishlist({ productId: product.id })
       );
 
     }
-
     else {
 
       this.store.dispatch(
-        addToWishlist({
-          product
-        })
+        addToWishlist({ product })
       );
 
     }

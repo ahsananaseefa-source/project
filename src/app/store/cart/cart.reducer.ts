@@ -1,6 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 
-import { initialCartState } from './cart.state';
+import {
+  initialCartState
+} from './cart.state';
 
 import {
   addToCart,
@@ -12,153 +14,247 @@ import {
 } from './cart.actions';
 
 
+// =====================================================
+// CART LIMITS
+// =====================================================
+
 export const MAX_CART_QUANTITY = 5;
 
+export const MAX_CART_PRODUCTS = 8;
+
+
+// =====================================================
+// CART REDUCER
+// =====================================================
 
 export const cartReducer = createReducer(
 
   initialCartState,
 
 
-  // =====================================================
+  // ===================================================
   // LOAD CART
-  // =====================================================
+  // ===================================================
 
   on(
     loadCartSuccess,
     (state, { items }) => {
 
       const limitedItems = items
-        .filter(item => item.product.stock > 0)
+
+        // Remove products with no stock
+        .filter(
+          item =>
+            item.product.stock > 0
+        )
+
+        // Apply maximum quantity
         .map(item => {
 
-          const maximumQuantity = Math.min(
-            MAX_CART_QUANTITY,
-            item.product.stock
-          );
+          const maximumQuantity =
+            Math.min(
+              MAX_CART_QUANTITY,
+              item.product.stock
+            );
 
           return {
+
             ...item,
-            quantity: Math.min(
-              item.quantity,
-              maximumQuantity
-            )
+
+            quantity:
+              Math.min(
+                item.quantity,
+                maximumQuantity
+              )
+
           };
 
-        });
+        })
+
+        // Maximum 15 different products
+        .slice(
+          0,
+          MAX_CART_PRODUCTS
+        );
+
 
       return {
+
         ...state,
 
         items: limitedItems,
 
         totalAmount:
           calculateTotal(limitedItems)
+
       };
 
     }
+
   ),
 
 
-  // =====================================================
+  // ===================================================
   // ADD TO CART
-  // =====================================================
+  // ===================================================
 
   on(
     addToCart,
     (state, { product, quantity }) => {
 
-      // No stock
-      if (product.stock <= 0) {
+
+      // -----------------------------------------------
+      // NO STOCK
+      // -----------------------------------------------
+
+      if (
+        product.stock <= 0
+      ) {
+
         return state;
+
       }
 
 
-      const maximumQuantity = Math.min(
-        MAX_CART_QUANTITY,
-        product.stock
-      );
+      // -----------------------------------------------
+      // MAXIMUM QUANTITY FOR SAME PRODUCT
+      // -----------------------------------------------
 
-
-      const existingItem = state.items.find(
-        item =>
-          item.product.id === product.id
-      );
-
-
-      // -------------------------------------------------
-      // PRODUCT ALREADY EXISTS
-      // -------------------------------------------------
-
-      if (existingItem) {
-
-        const updatedQuantity = Math.min(
-          existingItem.quantity + quantity,
-          maximumQuantity
+      const maximumQuantity =
+        Math.min(
+          MAX_CART_QUANTITY,
+          product.stock
         );
 
 
-        const updatedItems = state.items.map(
+      // -----------------------------------------------
+      // FIND EXISTING PRODUCT
+      // -----------------------------------------------
+
+      const existingItem =
+        state.items.find(
           item =>
-            item.product.id === product.id
-              ? {
-                  ...item,
-                  quantity: updatedQuantity
-                }
-              : item
+            item.product.id ===
+            product.id
         );
+
+
+      // =================================================
+      // PRODUCT ALREADY EXISTS
+      // =================================================
+
+      if (
+        existingItem
+      ) {
+
+        const updatedQuantity =
+          Math.min(
+            existingItem.quantity + quantity,
+            maximumQuantity
+          );
+
+
+        const updatedItems =
+          state.items.map(
+            item =>
+
+              item.product.id ===
+              product.id
+
+                ? {
+                    ...item,
+                    quantity:
+                      updatedQuantity
+                  }
+
+                : item
+          );
 
 
         return {
+
           ...state,
 
-          items: updatedItems,
+          items:
+            updatedItems,
 
           totalAmount:
-            calculateTotal(updatedItems)
+            calculateTotal(
+              updatedItems
+            )
+
         };
 
       }
 
 
-      // -------------------------------------------------
+      // =================================================
       // NEW PRODUCT
-      // -------------------------------------------------
+      // =================================================
 
-      const newItemQuantity = Math.min(
-        quantity,
-        maximumQuantity
-      );
+      // Maximum 8 different products
+      if (
+        state.items.length >=
+        MAX_CART_PRODUCTS
+      ) {
+
+        return state;
+
+      }
+
+
+      // -----------------------------------------------
+      // VALIDATE NEW PRODUCT QUANTITY
+      // -----------------------------------------------
+
+      const newItemQuantity =
+        Math.min(
+          quantity,
+          maximumQuantity
+        );
 
 
       const newItem = {
+
         product,
-        quantity: newItemQuantity
+
+        quantity:
+          newItemQuantity
+
       };
 
 
       const newItems = [
+
         ...state.items,
+
         newItem
+
       ];
 
 
       return {
+
         ...state,
 
-        items: newItems,
+        items:
+          newItems,
 
         totalAmount:
-          calculateTotal(newItems)
+          calculateTotal(
+            newItems
+          )
+
       };
 
     }
+
   ),
 
 
-  // =====================================================
-  // REMOVE
-  // =====================================================
+  // ===================================================
+  // REMOVE FROM CART
+  // ===================================================
 
   on(
     removeFromCart,
@@ -167,126 +263,160 @@ export const cartReducer = createReducer(
       const updatedItems =
         state.items.filter(
           item =>
-            item.product.id !== productId
+            item.product.id !==
+            productId
         );
 
 
       return {
+
         ...state,
 
-        items: updatedItems,
+        items:
+          updatedItems,
 
         totalAmount:
-          calculateTotal(updatedItems)
+          calculateTotal(
+            updatedItems
+          )
+
       };
 
     }
+
   ),
 
 
-  // =====================================================
+  // ===================================================
   // INCREASE QUANTITY
-  // =====================================================
+  // ===================================================
 
   on(
     increaseQuantity,
     (state, { productId }) => {
 
       const updatedItems =
-        state.items.map(item => {
+        state.items.map(
+          item => {
 
-          if (
-            item.product.id !== productId
-          ) {
-            return item;
+            if (
+              item.product.id !==
+              productId
+            ) {
+
+              return item;
+
+            }
+
+
+            const maximumQuantity =
+              Math.min(
+                MAX_CART_QUANTITY,
+                item.product.stock
+              );
+
+
+            // Already at maximum
+            if (
+              item.quantity >=
+              maximumQuantity
+            ) {
+
+              return item;
+
+            }
+
+
+            return {
+
+              ...item,
+
+              quantity:
+                item.quantity + 1
+
+            };
+
           }
-
-
-          const maximumQuantity =
-            Math.min(
-              MAX_CART_QUANTITY,
-              item.product.stock
-            );
-
-
-          // Already at maximum
-          if (
-            item.quantity >=
-            maximumQuantity
-          ) {
-            return item;
-          }
-
-
-          return {
-            ...item,
-
-            quantity:
-              item.quantity + 1
-          };
-
-        });
+        );
 
 
       return {
+
         ...state,
 
-        items: updatedItems,
+        items:
+          updatedItems,
 
         totalAmount:
-          calculateTotal(updatedItems)
+          calculateTotal(
+            updatedItems
+          )
+
       };
 
     }
+
   ),
 
 
-  // =====================================================
+  // ===================================================
   // DECREASE QUANTITY
-  // =====================================================
+  // ===================================================
 
   on(
     decreaseQuantity,
     (state, { productId }) => {
 
       const updatedItems =
-        state.items.map(item => {
+        state.items.map(
+          item => {
 
-          if (
-            item.product.id === productId &&
-            item.quantity > 1
-          ) {
+            if (
+              item.product.id ===
+              productId &&
+              item.quantity > 1
+            ) {
 
-            return {
-              ...item,
+              return {
 
-              quantity:
-                item.quantity - 1
-            };
+                ...item,
+
+                quantity:
+                  item.quantity - 1
+
+              };
+
+            }
+
+
+            return item;
 
           }
-
-          return item;
-
-        });
+        );
 
 
       return {
+
         ...state,
 
-        items: updatedItems,
+        items:
+          updatedItems,
 
         totalAmount:
-          calculateTotal(updatedItems)
+          calculateTotal(
+            updatedItems
+          )
+
       };
 
     }
+
   ),
 
 
-  // =====================================================
+  // ===================================================
   // CLEAR CART
-  // =====================================================
+  // ===================================================
 
   on(
     clearCart,
@@ -299,6 +429,7 @@ export const cartReducer = createReducer(
       totalAmount: 0
 
     })
+
   )
 
 );
@@ -313,12 +444,18 @@ function calculateTotal(
 ): number {
 
   return items.reduce(
-    (total, item) =>
+
+    (
+      total,
+      item
+    ) =>
+
       total +
       item.product.price *
       item.quantity,
 
     0
+
   );
 
 }

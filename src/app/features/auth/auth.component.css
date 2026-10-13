@@ -216,7 +216,7 @@
 }
 
 .password-toggle:hover {
-  color: var(--dark);
+  color: var(--sage);
 }
 
 .password-info {
@@ -242,6 +242,123 @@
   color: var(--dark);
 
   font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   OTP POP-UP (MODAL)
+========================================================= */
+
+.otp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+
+  background: rgba(41, 42, 37, 0.55);
+
+  backdrop-filter: blur(3px);
+
+  animation: otpFadeIn 0.2s ease;
+}
+
+.otp-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  box-sizing: border-box;
+
+  padding: 30px;
+
+  background: var(--beige);
+
+  border: 1px solid rgba(184, 149, 90, 0.45);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 24px 60px rgba(41, 42, 37, 0.30);
+
+  animation: otpPopIn 0.25s ease;
+}
+
+.otp-modal-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+.otp-close-button {
+  flex-shrink: 0;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(41, 42, 37, 0.08);
+
+  color: var(--dark);
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.otp-close-button:hover {
+  background: var(--gold);
+
+  color: var(--cream);
+}
+
+@keyframes otpFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes otpPopIn {
+  from {
+    opacity: 0;
+
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0) scale(1);
+  }
 }
 
 
@@ -262,7 +379,19 @@
   border-radius: 12px;
 }
 
+
+/* =========================================================
+   OTP HEADING
+========================================================= */
+
 .otp-heading {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 15px;
+
   margin-bottom: 18px;
 }
 
@@ -298,6 +427,44 @@
 
 
 /* =========================================================
+   OTP 1 MINUTE TIMER
+========================================================= */
+
+.otp-timer {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 16px;
+
+  padding: 10px 14px;
+
+  background: rgba(184, 149, 90, 0.10);
+
+  border: 1px solid rgba(184, 149, 90, 0.35);
+
+  border-radius: 9px;
+}
+
+.timer-label {
+  color: rgba(41, 42, 37, 0.65);
+
+  font-size: 12px;
+}
+
+.timer-value {
+  color: var(--gold);
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+}
+
+
+/* =========================================================
    OTP INPUT
 ========================================================= */
 
@@ -305,7 +472,7 @@
   margin-bottom: 14px;
 }
 
-.otp-input {
+.form-group .otp-input {
   width: 100%;
 
   box-sizing: border-box;
@@ -334,7 +501,7 @@
     box-shadow 0.2s ease;
 }
 
-.otp-input::placeholder {
+.form-group .otp-input::placeholder {
   color: rgba(41, 42, 37, 0.35);
 
   font-size: 13px;
@@ -343,7 +510,7 @@
   letter-spacing: 1px;
 }
 
-.otp-input:focus {
+.form-group .otp-input:focus {
   border-color: var(--gold);
 
   box-shadow:
@@ -381,7 +548,9 @@
 }
 
 .verify-button:hover:not(:disabled) {
-  background: var(--dark);
+  background: var(--gold);
+
+  border-color: var(--gold);
 
   transform: translateY(-1px);
 }
@@ -421,7 +590,7 @@
 }
 
 .resend-button:hover:not(:disabled) {
-  color: var(--dark);
+  color: var(--sage);
 
   text-decoration: underline;
 }
@@ -443,6 +612,8 @@
   color: rgba(41, 42, 37, 0.5);
 
   font-size: 11px;
+
+  line-height: 1.5;
 
   text-align: center;
 }
@@ -478,7 +649,9 @@
 }
 
 .auth-button:hover:not(:disabled) {
-  background: var(--dark);
+  background: var(--gold);
+
+  border-color: var(--gold);
 
   transform: translateY(-1px);
 }
@@ -529,7 +702,7 @@
 }
 
 .auth-switch button:hover {
-  color: var(--dark);
+  color: var(--sage);
 
   text-decoration: underline;
 }
@@ -555,11 +728,19 @@
     font-size: 29px;
   }
 
+  .otp-modal {
+    padding: 24px 20px;
+  }
+
   .otp-section {
     padding: 17px;
   }
 
-  .otp-input {
+  .otp-heading {
+    flex-direction: column;
+  }
+
+  .form-group .otp-input {
     font-size: 20px;
 
     letter-spacing: 6px;

@@ -1,0 +1,30 @@
+@if (toast$ | async; as toast) {
+
+  <div
+    class="toast"
+    [class.toast-success]="toast.type === 'success'"
+    [class.toast-error]="toast.type === 'error'"
+    [class.toast-info]="toast.type === 'info'"
+  >
+
+    <div class="toast-icon">
+
+      @if (toast.type === 'success') {
+        ✓
+      }
+
+      @if (toast.type === 'error') {
+        ×
+      }
+
+      @if (toast.type === 'info') {
+        i
+      }
+
+    </div>
+
+    <p>{{ toast.message }}</p>
+
+  </div>
+
+}

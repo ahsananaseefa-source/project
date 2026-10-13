@@ -16,6 +16,7 @@ import {
 
 import {
   catchError,
+  filter,
   map,
   switchMap,
   tap,
@@ -29,12 +30,17 @@ import {
   decreaseQuantity,
   clearCart,
   loadCart,
-  loadCartSuccess
+  loadCartSuccess,
+  cartLimitReached
 } from './cart.actions';
 
 import {
   selectCartItems
 } from './cart.selectors';
+
+import {
+  MAX_CART_PRODUCTS
+} from './cart.reducer';
 
 import { CartService } from '../../core/services/cart.service';
 
@@ -65,36 +71,41 @@ export class CartEffects {
           localStorage.getItem('userId');
 
 
-        // -----------------------------------------------
+        // =================================================
         // GUEST
-        // -----------------------------------------------
+        // =================================================
 
         if (!userId) {
 
           const guestCart =
             this.cartService.getGuestCart();
 
+
           return of(
+
             loadCartSuccess({
               items: guestCart
             })
+
           );
 
         }
 
 
-        // -----------------------------------------------
+        // =================================================
         // LOGGED IN
-        // -----------------------------------------------
+        // =================================================
 
         return this.cartService
           .getUserCart(userId)
           .pipe(
 
             map(items =>
+
               loadCartSuccess({
                 items
               })
+
             ),
 
             catchError(error => {
@@ -104,10 +115,13 @@ export class CartEffects {
                 error
               );
 
+
               return of(
+
                 loadCartSuccess({
                   items: []
                 })
+
               );
 
             })
@@ -141,31 +155,52 @@ export class CartEffects {
           localStorage.getItem('userId');
 
 
-        // -----------------------------------------------
+        // =================================================
         // GUEST
-        // -----------------------------------------------
+        // =================================================
 
         if (!userId) {
-
-          // The separate save effect handles
-          // guest localStorage.
 
           return EMPTY;
 
         }
 
 
-        // -----------------------------------------------
-        // LOGGED IN
-        // -----------------------------------------------
+        // =================================================
+        // PRODUCT REJECTED BY THE REDUCER
+        // (cart limit reached or no stock)
+        // The cart state is already updated here, so if the
+        // product is not in it, it must not be saved.
+        // =================================================
 
-        const currentItem =
-          cartItems.find(
+        const isInCart =
+          cartItems.some(
             item =>
               item.product.id ===
               action.product.id
           );
 
+        if (!isInCart) {
+
+          return EMPTY;
+
+        }
+
+
+        // =================================================
+        // MAXIMUM QUANTITY
+        // =================================================
+
+        const maximumQuantity =
+          Math.min(
+            this.cartService.MAX_CART_QUANTITY,
+            action.product.stock
+          );
+
+
+        // =================================================
+        // GET SERVER CART
+        // =================================================
 
         return this.cartService
           .getUserCart(userId)
@@ -181,24 +216,31 @@ export class CartEffects {
                 );
 
 
-              // -----------------------------------------
-              // EXISTS IN SERVER
-              // -----------------------------------------
+              // =================================================
+              // PRODUCT ALREADY EXISTS
+              // =================================================
 
               if (serverItem?.id) {
 
-                const maximumQuantity =
-                  Math.min(
-                    this.cartService.MAX_CART_QUANTITY,
-                    action.product.stock
-                  );
+                const currentQuantity =
+                  serverItem.quantity;
+
+
+                // Already at maximum
+                if (
+                  currentQuantity >=
+                  maximumQuantity
+                ) {
+
+                  return EMPTY;
+
+                }
 
 
                 const newQuantity =
                   Math.min(
-                    currentItem?.quantity ??
-                      action.quantity,
-
+                    currentQuantity +
+                    action.quantity,
                     maximumQuantity
                   );
 
@@ -212,14 +254,14 @@ export class CartEffects {
               }
 
 
-              // -----------------------------------------
-              // NEW SERVER ITEM
-              // -----------------------------------------
+              // =================================================
+              // NEW PRODUCT
+              // =================================================
 
-              const maximumQuantity =
+              const newQuantity =
                 Math.min(
-                  this.cartService.MAX_CART_QUANTITY,
-                  action.product.stock
+                  action.quantity,
+                  maximumQuantity
                 );
 
 
@@ -231,10 +273,7 @@ export class CartEffects {
                   action.product,
 
                 quantity:
-                  Math.min(
-                    action.quantity,
-                    maximumQuantity
-                  )
+                  newQuantity
 
               };
 
@@ -269,6 +308,44 @@ export class CartEffects {
 
 
   // =====================================================
+  // CART PRODUCT LIMIT REACHED
+  // Fires when a NEW product is added while the cart
+  // already has the maximum number of products
+  // =====================================================
+
+  cartLimitReached$ = createEffect(() =>
+
+    this.actions$.pipe(
+
+      ofType(addToCart),
+
+      withLatestFrom(
+        this.store.select(selectCartItems)
+      ),
+
+      filter(([action, cartItems]) =>
+
+        action.product.stock > 0 &&
+
+        cartItems.length >=
+        MAX_CART_PRODUCTS &&
+
+        !cartItems.some(
+          item =>
+            item.product.id ===
+            action.product.id
+        )
+
+      ),
+
+      map(() => cartLimitReached())
+
+    )
+
+  );
+
+
+  // =====================================================
   // REMOVE FROM CART
   // =====================================================
 
@@ -284,11 +361,10 @@ export class CartEffects {
           localStorage.getItem('userId');
 
 
-        // Guest:
-        // localStorage effect handles it.
-
         if (!userId) {
+
           return EMPTY;
+
         }
 
 
@@ -307,7 +383,9 @@ export class CartEffects {
 
 
               if (!item?.id) {
+
                 return EMPTY;
+
               }
 
 
@@ -361,7 +439,9 @@ export class CartEffects {
 
 
         if (!userId) {
+
           return EMPTY;
+
         }
 
 
@@ -374,7 +454,9 @@ export class CartEffects {
 
 
         if (!currentItem) {
+
           return EMPTY;
+
         }
 
 
@@ -385,11 +467,17 @@ export class CartEffects {
           );
 
 
+        // =================================================
+        // ALREADY AT MAXIMUM
+        // =================================================
+
         if (
           currentItem.quantity >=
           maximumQuantity
         ) {
+
           return EMPTY;
+
         }
 
 
@@ -408,14 +496,23 @@ export class CartEffects {
 
 
               if (!serverItem?.id) {
+
                 return EMPTY;
+
               }
+
+
+              const newQuantity =
+                Math.min(
+                  serverItem.quantity + 1,
+                  maximumQuantity
+                );
 
 
               return this.cartService
                 .updateCartItem(
                   serverItem.id,
-                  currentItem.quantity
+                  newQuantity
                 );
 
             }),
@@ -465,7 +562,9 @@ export class CartEffects {
 
 
         if (!userId) {
+
           return EMPTY;
+
         }
 
 
@@ -481,7 +580,9 @@ export class CartEffects {
           !currentItem ||
           currentItem.quantity <= 1
         ) {
+
           return EMPTY;
+
         }
 
 
@@ -500,14 +601,23 @@ export class CartEffects {
 
 
               if (!serverItem?.id) {
+
                 return EMPTY;
+
               }
+
+
+              const newQuantity =
+                Math.max(
+                  serverItem.quantity - 1,
+                  1
+                );
 
 
               return this.cartService
                 .updateCartItem(
                   serverItem.id,
-                  currentItem.quantity
+                  newQuantity
                 );
 
             }),
@@ -552,11 +662,10 @@ export class CartEffects {
           localStorage.getItem('userId');
 
 
-        // Guest cart is handled
-        // by saveGuestCart$.
-
         if (!userId) {
+
           return EMPTY;
+
         }
 
 
@@ -565,8 +674,10 @@ export class CartEffects {
           .pipe(
 
             switchMap(items =>
+
               this.cartService
                 .clearUserCart(items)
+
             ),
 
             catchError(error => {
@@ -598,6 +709,7 @@ export class CartEffects {
   // =====================================================
 
   saveGuestCart$ = createEffect(
+
     () =>
 
       this.actions$.pipe(
@@ -620,9 +732,7 @@ export class CartEffects {
             localStorage.getItem('userId');
 
 
-          // Only save to localStorage
-          // when user is NOT logged in.
-
+          // Only save guest cart
           if (!userId) {
 
             this.cartService

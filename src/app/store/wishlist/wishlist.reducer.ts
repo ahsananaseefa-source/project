@@ -10,27 +10,31 @@ import {
   loadWishlistSuccess
 } from './wishlist.actions';
 
+
 export const wishlistReducer = createReducer(
 
   initialWishlistState,
 
 
-  // =========================
+  // =====================================================
   // LOAD WISHLIST SUCCESS
-  // =========================
+  // =====================================================
 
   on(
     loadWishlistSuccess,
     (state, { items }) => ({
+
       ...state,
+
       items: items
+
     })
   ),
 
 
-  // =========================
+  // =====================================================
   // REMOVE FROM WISHLIST
-  // =========================
+  // =====================================================
 
   on(
     removeFromWishlist,
@@ -38,27 +42,36 @@ export const wishlistReducer = createReducer(
 
       const updatedItems =
         state.items.filter(
-          item => item.productId !== productId
+          item =>
+            item.productId !==
+            productId
         );
 
+
       return {
+
         ...state,
+
         items: updatedItems
+
       };
 
     }
   ),
 
 
-  // =========================
+  // =====================================================
   // CLEAR WISHLIST
-  // =========================
+  // =====================================================
 
   on(
     clearWishlist,
     state => ({
+
       ...state,
+
       items: []
+
     })
   )
 

@@ -4,9 +4,9 @@
 
   <div class="account-container">
 
-    <!-- =========================
+    <!-- =====================================================
          ACCOUNT HEADER
-    ========================= -->
+    ====================================================== -->
 
     <div class="account-header">
 
@@ -23,70 +23,323 @@
 
     @if (user) {
 
-      <!-- =========================
+      <!-- =====================================================
            PROFILE
-      ========================= -->
+      ====================================================== -->
 
       <section class="profile-section">
 
-        <div class="section-heading">
+        <div class="profile-heading">
 
-          <p>ACCOUNT</p>
+          <div class="section-heading">
 
-          <h2>Profile Information</h2>
+            <p>ACCOUNT</p>
+
+            <h2>Profile Information</h2>
+
+          </div>
+
+
+          @if (!isEditingProfile) {
+
+            <button
+              type="button"
+              class="edit-profile-button"
+              (click)="openEditProfile()">
+
+              Edit Profile
+
+            </button>
+
+          }
 
         </div>
 
 
-        <div class="profile-details">
+        <div class="profile-layout">
 
-          <div class="profile-item">
+          <!-- PROFILE PHOTO -->
 
-            <span class="label">
-              Name
-            </span>
+          <div class="profile-photo-section">
 
-            <span class="value">
+            <div class="profile-photo-wrapper">
+
+              @if (profilePhoto) {
+
+                <img
+                  class="profile-photo"
+                  [src]="profilePhoto"
+                  alt="Profile photo">
+
+              }
+
+              @else {
+
+                <div class="profile-photo-placeholder">
+
+                  <span>
+                    {{ user.name.charAt(0).toUpperCase() }}
+                  </span>
+
+                </div>
+
+              }
+
+
+              <button
+                type="button"
+                class="photo-camera-button"
+                aria-label="Change profile photo"
+                (click)="profilePhotoInput.click()">
+
+                +
+
+              </button>
+
+            </div>
+
+
+            <input
+              #profilePhotoInput
+              type="file"
+              accept="image/*"
+              class="profile-photo-input"
+              (change)="onProfilePhotoSelected($event)">
+
+
+            <h3>
               {{ user.name }}
-            </span>
+            </h3>
+
+            <p>
+              Profile Photo
+            </p>
+
+
+            <div class="photo-actions">
+
+              <button
+                type="button"
+                class="photo-upload-button"
+                (click)="profilePhotoInput.click()">
+
+                {{ profilePhoto ? 'Change Photo' : 'Add Photo' }}
+
+              </button>
+
+
+              @if (profilePhoto) {
+
+                <button
+                  type="button"
+                  class="photo-remove-button"
+                  (click)="removeProfilePhoto()">
+
+                  Remove
+
+                </button>
+
+              }
+
+            </div>
 
           </div>
 
 
-          <div class="profile-item">
+          <!-- PROFILE DETAILS -->
 
-            <span class="label">
-              Email
-            </span>
+          @if (!isEditingProfile) {
 
-            <span class="value">
-              {{ user.email }}
-            </span>
+            <div class="profile-details">
 
-          </div>
+              <div class="profile-item">
+
+                <span class="label">
+                  Name
+                </span>
+
+                <span class="value">
+                  {{ user.name }}
+                </span>
+
+              </div>
 
 
-          <div class="profile-item">
+              <div class="profile-item">
 
-            <span class="label">
-              Phone
-            </span>
+                <span class="label">
+                  Email
+                </span>
 
-            <span class="value">
-              {{ user.phone || 'Not added' }}
-            </span>
+                <span class="value">
+                  {{ user.email }}
+                </span>
 
-          </div>
+              </div>
+
+
+              <div class="profile-item">
+
+                <span class="label">
+                  Phone
+                </span>
+
+                <span class="value">
+                  {{ user.phone || 'Not added' }}
+                </span>
+
+              </div>
+
+            </div>
+
+          }
+
+          @else {
+
+            <!-- EDIT PROFILE FORM -->
+
+            <div class="profile-edit-form">
+
+              <div class="profile-edit-grid">
+
+                <!-- NAME -->
+
+                <div
+                  class="form-field"
+                  [class.has-error]="profileFieldErrors.name">
+
+                  <label for="profileName">
+                    Name
+                  </label>
+
+                  <input
+                    id="profileName"
+                    type="text"
+                    [(ngModel)]="profileForm.name"
+                    (ngModelChange)="onProfileFieldChange('name', $event)"
+                    (blur)="validateProfileField('name')"
+                    placeholder="Enter your name">
+
+                  @if (profileFieldErrors.name) {
+
+                    <small class="field-error">
+                      {{ profileFieldErrors.name }}
+                    </small>
+
+                  }
+
+                </div>
+
+
+                <!-- PHONE -->
+
+                <div
+                  class="form-field"
+                  [class.has-error]="profileFieldErrors.phone">
+
+                  <label for="profilePhone">
+                    Phone
+                  </label>
+
+                  <input
+                    id="profilePhone"
+                    type="tel"
+                    maxlength="10"
+                    [(ngModel)]="profileForm.phone"
+                    (ngModelChange)="onProfileFieldChange('phone', $event)"
+                    (blur)="validateProfileField('phone')"
+                    placeholder="Enter 10-digit phone number">
+
+                  @if (profileFieldErrors.phone) {
+
+                    <small class="field-error">
+                      {{ profileFieldErrors.phone }}
+                    </small>
+
+                  }
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="form-field full-width">
+
+                  <label for="profileEmail">
+                    Email
+                  </label>
+
+                  <input
+                    id="profileEmail"
+                    type="email"
+                    [value]="user.email"
+                    readonly
+                    class="readonly-input">
+
+                </div>
+
+              </div>
+
+
+              <div class="form-actions">
+
+                <button
+                  type="button"
+                  class="cancel-button"
+                  (click)="cancelEditProfile()">
+
+                  Cancel
+
+                </button>
+
+
+                <button
+                  type="button"
+                  class="save-button"
+                  (click)="saveProfile()">
+
+                  Save Profile
+
+                </button>
+
+              </div>
+
+            </div>
+
+          }
 
         </div>
+
+
+        <!-- PROFILE MESSAGE -->
+
+        @if (addressSuccess && !isAddressFormOpen) {
+
+          <div class="profile-success">
+
+            {{ addressSuccess }}
+
+          </div>
+
+        }
+
+
+        @if (addressError && !isAddressFormOpen) {
+
+          <div class="profile-error">
+
+            {{ addressError }}
+
+          </div>
+
+        }
 
       </section>
 
 
-
-      <!-- =========================
+      <!-- =====================================================
            SAVED ADDRESSES
-      ========================= -->
+      ====================================================== -->
 
       <section class="address-section">
 
@@ -101,7 +354,11 @@
           </div>
 
 
-          @if (addresses.length < 2 && !isAddressFormOpen) {
+          @if (
+            addresses.length < 2 &&
+            addresses.length > 0 &&
+            !isAddressFormOpen
+          ) {
 
             <button
               type="button"
@@ -117,31 +374,40 @@
         </div>
 
 
-
-        @if (addressSuccess) {
+        @if (
+          addressSuccess &&
+          addresses.length > 0
+        ) {
 
           <div class="address-success">
+
             {{ addressSuccess }}
+
           </div>
 
         }
 
 
-        @if (addressError) {
+        @if (
+          addressError &&
+          addresses.length > 0
+        ) {
 
           <div class="address-error">
+
             {{ addressError }}
+
           </div>
 
         }
 
 
+        <!-- ADDRESS LIST -->
 
-        <!-- =========================
-             ADDRESS LIST
-        ========================= -->
-
-        @if (addresses.length > 0 && !isAddressFormOpen) {
+        @if (
+          addresses.length > 0 &&
+          !isAddressFormOpen
+        ) {
 
           <div class="address-grid">
 
@@ -163,18 +429,26 @@
                     </h3>
 
 
-                    @if (address.isDefault) {
+                    <div class="address-badges">
 
-                      <span class="default-badge">
-                        DEFAULT
+                      <span class="type-badge">
+                        {{ address.addressType || 'Home' }}
                       </span>
 
-                    }
+
+                      @if (address.isDefault) {
+
+                        <span class="default-badge">
+                          DEFAULT
+                        </span>
+
+                      }
+
+                    </div>
 
                   </div>
 
                 </div>
-
 
 
                 <div class="address-details">
@@ -194,7 +468,6 @@
                   </p>
 
                 </div>
-
 
 
                 <!-- ADDRESS ACTIONS -->
@@ -253,10 +526,7 @@
         }
 
 
-
-        <!-- =========================
-             NO ADDRESS
-        ========================= -->
+        <!-- NO ADDRESS -->
 
         @if (
           addresses.length === 0 &&
@@ -277,7 +547,6 @@
               Add a delivery address for a faster checkout.
             </p>
 
-
             <button
               type="button"
               class="add-address-button"
@@ -292,10 +561,7 @@
         }
 
 
-
-        <!-- =========================
-             ADDRESS FORM
-        ========================= -->
+        <!-- ADDRESS FORM -->
 
         @if (isAddressFormOpen) {
 
@@ -306,19 +572,23 @@
               <div>
 
                 <p>
+
                   {{
                     isEditingAddress
                       ? 'UPDATE ADDRESS'
                       : 'NEW ADDRESS'
                   }}
+
                 </p>
 
                 <h3>
+
                   {{
                     isEditingAddress
                       ? 'Edit Address'
                       : 'Add New Address'
                   }}
+
                 </h3>
 
               </div>
@@ -326,12 +596,13 @@
             </div>
 
 
-
             <div class="form-grid">
 
               <!-- FULL NAME -->
 
-              <div class="form-field">
+              <div
+                class="form-field"
+                [class.has-error]="addressFieldErrors.fullName">
 
                 <label for="fullName">
                   Full Name
@@ -341,15 +612,26 @@
                   id="fullName"
                   type="text"
                   [(ngModel)]="addressForm.fullName"
+                  (ngModelChange)="onAddressFieldChange('fullName', $event)"
+                  (blur)="validateAddressField('fullName')"
                   placeholder="Enter full name">
+
+                @if (addressFieldErrors.fullName) {
+
+                  <small class="field-error">
+                    {{ addressFieldErrors.fullName }}
+                  </small>
+
+                }
 
               </div>
 
 
-
               <!-- PHONE -->
 
-              <div class="form-field">
+              <div
+                class="form-field"
+                [class.has-error]="addressFieldErrors.phone">
 
                 <label for="phone">
                   Phone Number
@@ -360,15 +642,69 @@
                   type="tel"
                   maxlength="10"
                   [(ngModel)]="addressForm.phone"
+                  (ngModelChange)="onAddressFieldChange('phone', $event)"
+                  (blur)="validateAddressField('phone')"
                   placeholder="Enter 10-digit phone number">
+
+                @if (addressFieldErrors.phone) {
+
+                  <small class="field-error">
+                    {{ addressFieldErrors.phone }}
+                  </small>
+
+                }
 
               </div>
 
 
+              <!-- ADDRESS TYPE -->
+
+              <div
+                class="form-field full-width"
+                [class.has-error]="addressFieldErrors.addressType">
+
+                <label>
+                  Address Type
+                </label>
+
+                <div class="address-type-options">
+
+                  @for (
+                    type of addressTypes;
+                    track type
+                  ) {
+
+                    <button
+                      type="button"
+                      class="address-type-option"
+                      [class.active]="addressForm.addressType === type"
+                      (click)="selectAddressType(type)">
+
+                      {{ type }}
+
+                    </button>
+
+                  }
+
+                </div>
+
+
+                @if (addressFieldErrors.addressType) {
+
+                  <small class="field-error">
+                    {{ addressFieldErrors.addressType }}
+                  </small>
+
+                }
+
+              </div>
+
 
               <!-- ADDRESS -->
 
-              <div class="form-field full-width">
+              <div
+                class="form-field full-width"
+                [class.has-error]="addressFieldErrors.addressLine">
 
                 <label for="addressLine">
                   Address
@@ -378,16 +714,27 @@
                   id="addressLine"
                   rows="3"
                   [(ngModel)]="addressForm.addressLine"
+                  (ngModelChange)="onAddressFieldChange('addressLine', $event)"
+                  (blur)="validateAddressField('addressLine')"
                   placeholder="House / Flat / Street / Area">
                 </textarea>
+
+                @if (addressFieldErrors.addressLine) {
+
+                  <small class="field-error">
+                    {{ addressFieldErrors.addressLine }}
+                  </small>
+
+                }
 
               </div>
 
 
-
               <!-- CITY -->
 
-              <div class="form-field">
+              <div
+                class="form-field"
+                [class.has-error]="addressFieldErrors.city">
 
                 <label for="city">
                   City
@@ -397,15 +744,26 @@
                   id="city"
                   type="text"
                   [(ngModel)]="addressForm.city"
+                  (ngModelChange)="onAddressFieldChange('city', $event)"
+                  (blur)="validateAddressField('city')"
                   placeholder="Enter city">
+
+                @if (addressFieldErrors.city) {
+
+                  <small class="field-error">
+                    {{ addressFieldErrors.city }}
+                  </small>
+
+                }
 
               </div>
 
 
-
               <!-- STATE -->
 
-              <div class="form-field">
+              <div
+                class="form-field"
+                [class.has-error]="addressFieldErrors.state">
 
                 <label for="state">
                   State
@@ -415,15 +773,26 @@
                   id="state"
                   type="text"
                   [(ngModel)]="addressForm.state"
+                  (ngModelChange)="onAddressFieldChange('state', $event)"
+                  (blur)="validateAddressField('state')"
                   placeholder="Enter state">
+
+                @if (addressFieldErrors.state) {
+
+                  <small class="field-error">
+                    {{ addressFieldErrors.state }}
+                  </small>
+
+                }
 
               </div>
 
 
-
               <!-- PINCODE -->
 
-              <div class="form-field">
+              <div
+                class="form-field"
+                [class.has-error]="addressFieldErrors.pincode">
 
                 <label for="pincode">
                   Pincode
@@ -434,10 +803,19 @@
                   type="text"
                   maxlength="6"
                   [(ngModel)]="addressForm.pincode"
+                  (ngModelChange)="onAddressFieldChange('pincode', $event)"
+                  (blur)="validateAddressField('pincode')"
                   placeholder="Enter 6-digit pincode">
 
-              </div>
+                @if (addressFieldErrors.pincode) {
 
+                  <small class="field-error">
+                    {{ addressFieldErrors.pincode }}
+                  </small>
+
+                }
+
+              </div>
 
 
               <!-- DEFAULT -->
@@ -461,15 +839,15 @@
             </div>
 
 
-
             @if (addressError) {
 
               <div class="form-error">
+
                 {{ addressError }}
+
               </div>
 
             }
-
 
 
             <div class="form-actions">
@@ -504,10 +882,7 @@
         }
 
 
-
-        <!-- =========================
-             ADDRESS LIMIT
-        ========================= -->
+        <!-- ADDRESS LIMIT -->
 
         @if (
           addresses.length >= 2 &&
@@ -523,342 +898,9 @@
       </section>
 
 
-
-      <!-- =========================
-           MY ORDERS
-      ========================= -->
-
-      <section class="orders-section">
-
-        <div class="section-heading">
-
-          <p>ORDER HISTORY</p>
-
-          <h2>
-            My Orders
-          </h2>
-
-          <span>
-            View and manage your recent jewellery orders
-          </span>
-
-        </div>
-
-
-
-        <!-- LOADING -->
-
-        @if (orderLoading$ | async) {
-
-          <div class="orders-loading">
-
-            <p>
-              Loading your orders...
-            </p>
-
-          </div>
-
-        }
-
-
-
-        <!-- ERROR -->
-
-        @else if (orderError$ | async) {
-
-          <div class="orders-error">
-
-            <p>
-              Unable to load your orders.
-              Please try again.
-            </p>
-
-          </div>
-
-        }
-
-
-
-        <!-- EMPTY -->
-
-        @else if (userOrders.length === 0) {
-
-          <div class="empty-orders">
-
-            <div class="empty-orders-icon">
-              ◷
-            </div>
-
-            <h3>
-              No orders yet
-            </h3>
-
-            <p>
-              You haven't placed any orders yet.
-            </p>
-
-
-            <a
-              routerLink="/home"
-              class="shop-now-button">
-
-              Continue Shopping
-
-            </a>
-
-          </div>
-
-        }
-
-
-
-        <!-- ORDERS -->
-
-        @else {
-
-          <div class="orders-list">
-
-            @for (
-              order of userOrders;
-              track order.id
-            ) {
-
-              <article class="order-card">
-
-                <!-- ORDER HEADER -->
-
-                <div class="order-card-header">
-
-                  <div class="order-info">
-
-                    <span class="order-label">
-                      ORDER
-                    </span>
-
-                    <h3>
-                      #{{ order.id }}
-                    </h3>
-
-                  </div>
-
-
-                  <div
-                    class="order-status"
-                    [class.status-success]="order.status === 'Success'"
-                    [class.status-cancelled]="order.status === 'Cancelled'"
-                    [class.status-delivered]="order.status === 'Delivered'">
-
-                    {{ order.status }}
-
-                  </div>
-
-                </div>
-
-
-
-                <!-- ORDER DETAILS -->
-
-                <div class="order-details">
-
-                  <div class="order-detail">
-
-                    <span class="detail-label">
-                      Order Date
-                    </span>
-
-                    <span class="detail-value">
-
-                      {{
-                        formatOrderDate(
-                          order.orderDate
-                        )
-                      }}
-
-                    </span>
-
-                  </div>
-
-
-
-                  <div class="order-detail">
-
-                    <span class="detail-label">
-                      Payment
-                    </span>
-
-                    <span class="detail-value">
-                      {{ order.paymentMethod }}
-                    </span>
-
-                  </div>
-
-
-
-                  <div class="order-detail">
-
-                    <span class="detail-label">
-                      Items
-                    </span>
-
-                    <span class="detail-value">
-
-                      {{ order.items.length }}
-
-                      {{
-                        order.items.length === 1
-                          ? 'item'
-                          : 'items'
-                      }}
-
-                    </span>
-
-                  </div>
-
-
-
-                  <div class="order-detail">
-
-                    <span class="detail-label">
-                      Total
-                    </span>
-
-                    <span class="detail-value order-total">
-
-                      ₹{{ order.totalAmount }}
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-
-                <!-- ORDER ITEMS -->
-
-                <div class="order-items">
-
-                  <h4>
-                    Items Ordered
-                  </h4>
-
-
-                  @for (
-                    item of order.items;
-                    track item.product.id
-                  ) {
-
-                    <div class="order-item">
-
-                      <div class="order-item-image">
-
-                        <img
-                          [src]="item.product.image"
-                          [alt]="item.product.name">
-
-                      </div>
-
-
-                      <div class="order-item-info">
-
-                        <h5>
-                          {{ item.product.name }}
-                        </h5>
-
-                        <p>
-                          {{ item.product.category }}
-                        </p>
-
-                        <span>
-                          Qty: {{ item.quantity }}
-                        </span>
-
-                      </div>
-
-
-                      <div class="order-item-price">
-
-                        ₹{{
-                          item.product.price *
-                          item.quantity
-                        }}
-
-                      </div>
-
-                    </div>
-
-                  }
-
-                </div>
-
-
-
-                <!-- SHIPPING ADDRESS -->
-
-                <div class="order-address">
-
-                  <span class="detail-label">
-                    Delivery Address
-                  </span>
-
-                  <p>
-                    {{ order.shippingAddress }}
-                  </p>
-
-                </div>
-
-
-
-                <!-- ORDER ACTIONS -->
-
-                <div class="order-actions">
-
-                  @if (canCancelOrder(order)) {
-
-                    <button
-                      type="button"
-                      class="cancel-order-button"
-                      (click)="cancelUserOrder(order.id)">
-
-                      Cancel Order
-
-                    </button>
-
-                  }
-
-                  @else if (order.status === 'Cancelled') {
-
-                    <span class="cancelled-message">
-                      This order has been cancelled.
-                    </span>
-
-                  }
-
-                  @else if (order.status === 'Delivered') {
-
-                    <span class="delivered-message">
-                      This order has been delivered.
-                    </span>
-
-                  }
-
-                </div>
-
-              </article>
-
-            }
-
-          </div>
-
-        }
-
-      </section>
-
-
-
-      <!-- =========================
+      <!-- =====================================================
            QUICK ACCESS
-      ========================= -->
+      ====================================================== -->
 
       <section class="account-actions">
 
@@ -874,6 +916,48 @@
 
 
         <div class="action-grid">
+
+          <!-- ORDERS -->
+
+          <button
+            type="button"
+            class="account-card orders-card"
+            [class.active]="isOrdersOpen"
+            (click)="toggleOrders()">
+
+            <div class="card-icon">
+              ◷
+            </div>
+
+            <div class="card-content">
+
+              <h3>
+                My Orders
+              </h3>
+
+              <p>
+
+                {{
+                  userOrders.length === 0
+                    ? 'You have no orders yet.'
+                    : userOrders.length +
+                      (
+                        userOrders.length === 1
+                          ? ' order placed. View details.'
+                          : ' orders placed. View details.'
+                      )
+                }}
+
+              </p>
+
+            </div>
+
+            <span class="arrow">
+              {{ isOrdersOpen ? '↓' : '→' }}
+            </span>
+
+          </button>
+
 
           <!-- WISHLIST -->
 
@@ -902,7 +986,6 @@
             </span>
 
           </a>
-
 
 
           <!-- CART -->
@@ -938,10 +1021,311 @@
       </section>
 
 
+      <!-- =====================================================
+           MY ORDERS
+      ====================================================== -->
 
-      <!-- =========================
+      @if (isOrdersOpen) {
+
+        <section class="orders-section">
+
+          <div class="section-heading">
+
+            <p>ORDER HISTORY</p>
+
+            <h2>
+              My Orders
+            </h2>
+
+            <span>
+              View your recent jewellery orders
+            </span>
+
+          </div>
+
+
+          <!-- LOADING -->
+
+          @if (orderLoading$ | async) {
+
+            <div class="orders-loading">
+
+              <p>
+                Loading your orders...
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- ERROR -->
+
+          @else if (orderError$ | async) {
+
+            <div class="orders-error">
+
+              <p>
+                Unable to load your orders.
+                Please try again.
+              </p>
+
+            </div>
+
+          }
+
+
+          <!-- EMPTY -->
+
+          @else if (userOrders.length === 0) {
+
+            <div class="empty-orders">
+
+              <div class="empty-orders-icon">
+                ◷
+              </div>
+
+              <h3>
+                No orders yet
+              </h3>
+
+              <p>
+                You haven't placed any orders yet.
+              </p>
+
+              <a
+                routerLink="/home"
+                class="shop-now-button">
+
+                Continue Shopping
+
+              </a>
+
+            </div>
+
+          }
+
+
+          <!-- ORDERS -->
+
+          @else {
+
+            <div class="orders-list">
+
+              @for (
+                order of userOrders;
+                track order.id
+              ) {
+
+                <article class="order-card">
+
+                  <!-- ORDER HEADER -->
+
+                  <div class="order-card-header">
+
+                    <div class="order-info">
+
+                      <span class="order-label">
+                        ORDER
+                      </span>
+
+                      <h3>
+                        #{{ order.id }}
+                      </h3>
+
+                    </div>
+
+
+                    <div
+                      class="order-status"
+                      [class.status-success]="order.status === 'Success'"
+                      [class.status-cancelled]="order.status === 'Cancelled'"
+                      [class.status-delivered]="order.status === 'Delivered'">
+
+                      {{ order.status }}
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- ORDER DETAILS -->
+
+                  <div class="order-details">
+
+                    <div class="order-detail">
+
+                      <span class="detail-label">
+                        Order Date
+                      </span>
+
+                      <span class="detail-value">
+
+                        {{
+                          formatOrderDate(
+                            order.orderDate
+                          )
+                        }}
+
+                      </span>
+
+                    </div>
+
+
+                    <div class="order-detail">
+
+                      <span class="detail-label">
+                        Payment
+                      </span>
+
+                      <span class="detail-value">
+                        {{ order.paymentMethod }}
+                      </span>
+
+                    </div>
+
+
+                    <div class="order-detail">
+
+                      <span class="detail-label">
+                        Items
+                      </span>
+
+                      <span class="detail-value">
+
+                        {{ order.items.length }}
+
+                        {{
+                          order.items.length === 1
+                            ? 'item'
+                            : 'items'
+                        }}
+
+                      </span>
+
+                    </div>
+
+
+                    <div class="order-detail">
+
+                      <span class="detail-label">
+                        Total
+                      </span>
+
+                      <span class="detail-value order-total">
+                        ₹{{ order.totalAmount }}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- ORDER ITEMS -->
+
+                  <div class="order-items">
+
+                    <h4>
+                      Items Ordered
+                    </h4>
+
+
+                    @for (
+                      item of order.items;
+                      track item.product.id
+                    ) {
+
+                      <div class="order-item">
+
+                        <div class="order-item-image">
+
+                          <img
+                            [src]="item.product.image"
+                            [alt]="item.product.name">
+
+                        </div>
+
+
+                        <div class="order-item-info">
+
+                          <h5>
+                            {{ item.product.name }}
+                          </h5>
+
+                          <p>
+                            {{ item.product.category }}
+                          </p>
+
+                          <span>
+                            Qty: {{ item.quantity }}
+                          </span>
+
+                        </div>
+
+
+                        <div class="order-item-price">
+
+                          ₹{{
+                            item.product.price *
+                            item.quantity
+                          }}
+
+                        </div>
+
+                      </div>
+
+                    }
+
+                  </div>
+
+
+                  <!-- SHIPPING ADDRESS -->
+
+                  <div class="order-address">
+
+                    <span class="detail-label">
+                      Delivery Address
+                    </span>
+
+                    <p>
+                      {{ order.shippingAddress }}
+                    </p>
+
+                  </div>
+
+
+                  <!-- ORDER STATUS MESSAGE -->
+
+                  @if (order.status === 'Delivered') {
+
+                    <div class="order-actions">
+
+                      <span class="delivered-message">
+
+                        This order has been delivered.
+
+                      </span>
+
+                    </div>
+
+                  }
+
+                </article>
+
+              }
+
+            </div>
+
+          }
+
+        </section>
+
+      }
+
+
+      <!-- =====================================================
            LOGOUT
-      ========================= -->
+      ====================================================== -->
 
       <section class="logout-section">
 
@@ -959,7 +1343,6 @@
     }
 
 
-
     @else {
 
       <div class="loading">
@@ -973,10 +1356,9 @@
     }
 
 
-
-    <!-- =========================
-         DELETE ADDRESS CONFIRMATION
-    ========================= -->
+    <!-- =====================================================
+         DELETE ADDRESS MODAL
+    ====================================================== -->
 
     @if (isDeleteConfirmOpen) {
 
@@ -997,8 +1379,10 @@
           </h2>
 
           <p class="modal-message">
+
             Are you sure you want to delete this saved
             address? This action cannot be undone.
+
           </p>
 
 

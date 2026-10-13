@@ -1,0 +1,42 @@
+<app-header></app-header>
+
+<div class="not-found-page">
+
+  <div class="not-found-card">
+
+    <p class="not-found-brand">ZELL COLLECTION</p>
+
+    <h1 class="not-found-code">404</h1>
+
+    <div class="not-found-divider"></div>
+
+    <h2>Page Not Found</h2>
+
+    <p class="not-found-text">
+      The page you are looking for may have been moved,
+      renamed or may no longer exist.
+    </p>
+
+    <div class="not-found-actions">
+
+      <a routerLink="/home" class="home-button">
+        Back to Home
+      </a>
+
+      <a routerLink="/products" class="shop-button">
+        Browse Collection
+      </a>
+
+    </div>
+
+    <button
+      type="button"
+      class="back-link"
+      (click)="goBack()"
+    >
+      ← Go back to the previous page
+    </button>
+
+  </div>
+
+</div>

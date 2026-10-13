@@ -1,0 +1,249 @@
+/* =====================================================
+   ZELL COLLECTION - 404 PAGE
+===================================================== */
+
+.not-found-page {
+  min-height: 80vh;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px 20px;
+
+  box-sizing: border-box;
+
+  background: #F7F4EC;
+  color: #292A25;
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.not-found-card {
+  width: 100%;
+  max-width: 560px;
+
+  padding: 55px 40px;
+
+  box-sizing: border-box;
+
+  text-align: center;
+
+  background: #E8E1D2;
+
+  border: 1px solid #D4CCBA;
+
+  animation: notFoundOpen 0.4s ease;
+}
+
+@keyframes notFoundOpen {
+
+  from {
+    opacity: 0;
+
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+
+}
+
+
+/* =====================================================
+   TEXT
+===================================================== */
+
+.not-found-brand {
+  margin: 0 0 14px;
+
+  color: #B8955A;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.not-found-code {
+  margin: 0;
+
+  color: #B8955A;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: 110px;
+  font-weight: 400;
+
+  line-height: 1;
+
+  letter-spacing: 4px;
+}
+
+.not-found-divider {
+  width: 60px;
+  height: 1px;
+
+  margin: 24px auto;
+
+  background: #7D8B74;
+}
+
+.not-found-card h2 {
+  margin: 0 0 12px;
+
+  color: #292A25;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.not-found-text {
+  max-width: 380px;
+
+  margin: 0 auto 32px;
+
+  color: #6E6F67;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.not-found-actions {
+  display: flex;
+
+  gap: 12px;
+}
+
+.home-button,
+.shop-button {
+  flex: 1;
+
+  min-height: 46px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  padding: 12px 18px;
+
+  font-family: inherit;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  letter-spacing: 0.3px;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.home-button {
+  background: #7D8B74;
+
+  border: 1px solid #7D8B74;
+
+  color: #F7F4EC;
+}
+
+.home-button:hover {
+  background: #B8955A;
+
+  border-color: #B8955A;
+}
+
+.shop-button {
+  background: transparent;
+
+  border: 1px solid #B8955A;
+
+  color: #A27D43;
+}
+
+.shop-button:hover {
+  background: #B8955A;
+
+  color: #F7F4EC;
+}
+
+.back-link {
+  margin-top: 22px;
+
+  padding: 0;
+
+  background: transparent;
+
+  border: none;
+
+  color: #77786F;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #B8955A;
+
+  text-decoration: underline;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 500px) {
+
+  .not-found-page {
+    padding: 40px 16px;
+  }
+
+  .not-found-card {
+    padding: 40px 22px;
+  }
+
+  .not-found-code {
+    font-size: 84px;
+  }
+
+  .not-found-card h2 {
+    font-size: 23px;
+  }
+
+  .not-found-actions {
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+}

@@ -1,97 +1,120 @@
-/* =========================================
-   ORDER PAGE
-========================================= */
+/* =====================================================
+   ZELL COLLECTION - MY ORDERS
+===================================================== */
 
 .order-page {
   min-height: 100vh;
-  padding: 70px 60px;
-  background-color: #F7F4EC;
+  padding: 75px 60px 90px;
+
+  background: #F7F4EC;
   color: #292A25;
+
+  box-sizing: border-box;
 }
 
 
-/* =========================================
+/* =====================================================
    ORDER HEADER
-========================================= */
+===================================================== */
 
 .order-header {
+  max-width: 900px;
+
+  margin: 0 auto 55px;
+
   text-align: center;
-  margin-bottom: 55px;
 }
 
 .order-header p {
   margin: 0 0 10px;
+
   color: #B8955A;
-  font-size: 13px;
-  font-weight: 500;
+
+  font-size: 11px;
+  font-weight: 600;
+
   letter-spacing: 3px;
   text-transform: uppercase;
 }
 
 .order-header h1 {
   margin: 0 0 12px;
+
   color: #292A25;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
   font-size: 42px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  font-weight: 400;
+
+  letter-spacing: 0.3px;
 }
 
 .order-header span {
-  color: #66675F;
+  color: #77786F;
+
   font-size: 14px;
+  line-height: 1.6;
 }
 
 
-/* =========================================
+/* =====================================================
    ORDERS CONTAINER
-========================================= */
+===================================================== */
 
 .orders-container {
+  width: 100%;
   max-width: 900px;
+
   margin: 0 auto;
 }
 
 
-/* =========================================
+/* =====================================================
    ORDER CARD
-========================================= */
+===================================================== */
 
 .order-card {
+  margin-bottom: 26px;
   padding: 30px;
-  margin-bottom: 25px;
 
-  background-color: #E8E1D2;
+  box-sizing: border-box;
 
-  border: 1px solid #D0C9B9;
+  background: #E8E1D2;
+
+  border: 1px solid #D4CCBA;
 
   transition:
     transform 0.3s ease,
-    box-shadow 0.3s ease,
-    border-color 0.3s ease;
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .order-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 
-  border-color: #B8955A;
+  border-color: rgba(184, 149, 90, 0.7);
 
   box-shadow:
-    0 12px 30px rgba(41, 42, 37, 0.08);
+    0 14px 35px rgba(41, 42, 37, 0.08);
 }
 
 
-/* =========================================
+/* =====================================================
    ORDER TOP
-========================================= */
+===================================================== */
 
 .order-top {
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
 
   padding-bottom: 22px;
 
-  border-bottom: 1px solid #C9C0AA;
+  border-bottom: 1px solid #CCC3AF;
 }
 
 .order-label {
@@ -99,9 +122,10 @@
 
   color: #7D8B74;
 
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 1.5px;
+
+  letter-spacing: 1.8px;
   text-transform: uppercase;
 }
 
@@ -110,35 +134,322 @@
 
   color: #292A25;
 
+  font-family: Georgia, 'Times New Roman', serif;
+
   font-size: 21px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 
-/* =========================================
+/* =====================================================
    ORDER STATUS
-========================================= */
+===================================================== */
 
 .order-status {
-  padding: 8px 15px;
+  display: inline-flex;
 
-  background-color: #7D8B74;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 90px;
+
+  padding: 8px 14px;
+
+  box-sizing: border-box;
+
+  background: #7D8B74;
+
+  border: 1px solid #718068;
+
   color: #F7F4EC;
 
-  border: 1px solid #6F7D67;
+  font-size: 11px;
+  font-weight: 600;
 
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
+
+  text-transform: capitalize;
+}
+
+.order-status.cancelled {
+  background: #B8955A;
+
+  border-color: #B8955A;
 }
 
 
-/* =========================================
+/* =====================================================
+   PRODUCTS
+===================================================== */
+
+.order-products {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  padding: 24px 0;
+
+  border-bottom: 1px solid #CCC3AF;
+
+  overflow-x: auto;
+}
+
+.order-product {
+  width: 90px;
+
+  flex: 0 0 90px;
+}
+
+.order-product img {
+  display: block;
+
+  width: 90px;
+  height: 90px;
+
+  object-fit: cover;
+
+  background: #D9DED3;
+
+  border: 1px solid #D0C9B9;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.order-product:hover img {
+  transform: translateY(-2px);
+
+  border-color: #B8955A;
+}
+
+.order-product span {
+  display: -webkit-box;
+
+  margin-top: 8px;
+
+  color: #4F5049;
+
+  font-size: 11px;
+  line-height: 1.45;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+.order-product-more {
+  width: 90px;
+  height: 90px;
+
+  flex: 0 0 90px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  background: #F7F4EC;
+
+  border: 1px dashed #B8955A;
+
+  color: #B8955A;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   ORDER TRACKER
+===================================================== */
+
+.tracker {
+  display: flex;
+
+  width: 100%;
+
+  padding: 30px 0 18px;
+
+  border-bottom: 1px solid #CCC3AF;
+
+  animation: trackerOpen 0.25s ease;
+}
+
+@keyframes trackerOpen {
+
+  from {
+    opacity: 0;
+
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+
+}
+
+.tracker-step {
+  position: relative;
+
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  min-width: 0;
+
+  text-align: center;
+}
+
+
+/* Connector line */
+
+.tracker-step::before {
+  content: '';
+
+  position: absolute;
+
+  top: 11px;
+  left: -50%;
+
+  width: 100%;
+  height: 1px;
+
+  background: #C9C0AA;
+
+  z-index: 0;
+}
+
+.tracker-step:first-child::before {
+  display: none;
+}
+
+.tracker-step.done::before {
+  background: #7D8B74;
+}
+
+
+/* Tracker dot */
+
+.tracker-dot {
+  position: relative;
+
+  z-index: 1;
+
+  width: 22px;
+  height: 22px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  background: #E8E1D2;
+
+  border: 1.5px solid #C9C0AA;
+
+  border-radius: 50%;
+
+  color: #F7F4EC;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tracker-step.done .tracker-dot {
+  background: #7D8B74;
+
+  border-color: #7D8B74;
+}
+
+.tracker-step.current .tracker-dot {
+  background: #B8955A;
+
+  border-color: #B8955A;
+
+  box-shadow:
+    0 0 0 4px rgba(184, 149, 90, 0.16);
+}
+
+
+/* Tracker text */
+
+.tracker-step span {
+  margin-top: 10px;
+
+  max-width: 85px;
+
+  color: #8A8A80;
+
+  font-size: 10px;
+
+  line-height: 1.35;
+}
+
+.tracker-step.done span {
+  color: #4E5048;
+}
+
+.tracker-step.current span {
+  color: #B8955A;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   CANCELLED BOX
+===================================================== */
+
+.cancelled-box {
+  margin-top: 22px;
+
+  padding: 16px 18px;
+
+  background: rgba(184, 149, 90, 0.10);
+
+  border-left: 2px solid #B8955A;
+}
+
+.cancelled-box strong {
+  color: #292A25;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cancelled-box p {
+  margin: 7px 0 0;
+
+  color: #6D6E66;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* =====================================================
    ORDER DETAILS
-========================================= */
+===================================================== */
 
 .order-details {
   display: grid;
+
   grid-template-columns: repeat(3, 1fr);
 
   gap: 20px;
@@ -147,62 +458,91 @@
 }
 
 .order-details > div {
-  padding: 5px 0;
+  min-width: 0;
 }
 
 .order-details p {
   margin: 0 0 7px;
 
-  color: #7A7A70;
+  color: #85857B;
 
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 1px;
+
   text-transform: uppercase;
 }
 
 .order-details strong {
   color: #292A25;
 
-  font-size: 15px;
+  font-size: 14px;
+
   font-weight: 500;
 }
 
 
-/* =========================================
-   VIEW ORDER BUTTON
-========================================= */
+/* =====================================================
+   ORDER ACTIONS
+===================================================== */
 
-.view-order-button {
-  display: block;
+.order-actions {
+  display: flex;
 
-  width: 100%;
-  padding: 13px;
+  gap: 12px;
+}
+
+.view-order-button,
+.track-order-button,
+.cancel-order-button {
+  flex: 1;
+
+  min-height: 44px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
 
   box-sizing: border-box;
 
-  border: 1px solid #7D8B74;
+  padding: 12px 18px;
 
-  background-color: transparent;
-
-  color: #292A25;
+  background: transparent;
 
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.3px;
 
   text-align: center;
+
   text-decoration: none;
 
   cursor: pointer;
 
   transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease;
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+
+/* View */
+
+.view-order-button {
+  border: 1px solid #7D8B74;
+
+  color: #52604C;
 }
 
 .view-order-button:hover {
-  background-color: #7D8B74;
+  background: #7D8B74;
 
   border-color: #7D8B74;
 
@@ -210,22 +550,61 @@
 }
 
 
-/* =========================================
+/* Track */
+
+.track-order-button {
+  border: 1px solid #292A25;
+
+  color: #292A25;
+}
+
+.track-order-button:hover,
+.track-order-button.active {
+  background: #292A25;
+
+  border-color: #292A25;
+
+  color: #F7F4EC;
+}
+
+
+/* Cancel */
+
+.cancel-order-button {
+  border: 1px solid #B8955A;
+
+  color: #A27D43;
+
+  font-family: inherit;
+}
+
+.cancel-order-button:hover {
+  background: #B8955A;
+
+  border-color: #B8955A;
+
+  color: #F7F4EC;
+}
+
+
+/* =====================================================
    EMPTY ORDERS
-========================================= */
+===================================================== */
 
 .empty-orders {
   max-width: 900px;
 
   margin: 0 auto;
 
-  padding: 80px 20px;
+  padding: 85px 25px;
+
+  box-sizing: border-box;
 
   text-align: center;
 
-  background-color: #E8E1D2;
+  background: #E8E1D2;
 
-  border: 1px solid #D0C9B9;
+  border: 1px solid #D4CCBA;
 }
 
 .empty-orders h2 {
@@ -233,49 +612,382 @@
 
   color: #292A25;
 
-  font-size: 24px;
-  font-weight: 500;
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: 25px;
+
+  font-weight: 400;
 }
 
 .empty-orders p {
   margin: 0;
 
-  color: #66675F;
+  color: #6E6F67;
 
-  font-size: 14px;
+  font-size: 13px;
+
+  line-height: 1.6;
 }
 
 
-/* =========================================
-   LOADING / ERROR MESSAGE
-========================================= */
+/* =====================================================
+   LOADING / ERROR
+===================================================== */
 
 .message {
   max-width: 900px;
 
   margin: 0 auto;
+
   padding: 35px 20px;
+
+  box-sizing: border-box;
 
   text-align: center;
 
-  background-color: #E8E1D2;
+  background: #E8E1D2;
 
-  border: 1px solid #D0C9B9;
+  border: 1px solid #D4CCBA;
 
-  color: #66675F;
+  color: #6E6F67;
 
-  font-size: 14px;
+  font-size: 13px;
 }
 
 
-/* =========================================
-   RESPONSIVE - TABLET
-========================================= */
+/* =====================================================
+   CANCEL OVERLAY
+===================================================== */
+
+.cancel-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: rgba(41, 42, 37, 0.58);
+
+  backdrop-filter: blur(5px);
+}
+
+
+/* =====================================================
+   CANCEL CARD
+===================================================== */
+
+.cancel-card {
+  width: 100%;
+
+  max-width: 470px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  box-sizing: border-box;
+
+  padding: 35px 30px;
+
+  background: #F7F4EC;
+
+  border: 1px solid rgba(184, 149, 90, 0.4);
+
+  box-shadow:
+    0 25px 70px rgba(41, 42, 37, 0.28);
+
+  animation: cancelOpen 0.22s ease;
+}
+
+@keyframes cancelOpen {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px)
+      scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* =====================================================
+   CANCEL HEADER
+===================================================== */
+
+.cancel-brand {
+  margin: 0 0 9px;
+
+  color: #B8955A;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 3px;
+
+  text-align: center;
+}
+
+.cancel-card h2 {
+  margin: 0 0 9px;
+
+  color: #292A25;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: 24px;
+
+  font-weight: 400;
+
+  line-height: 1.3;
+
+  text-align: center;
+}
+
+.cancel-subtitle {
+  margin: 0 0 22px;
+
+  color: #72736B;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+
+  text-align: center;
+}
+
+
+/* =====================================================
+   CANCEL REASONS
+===================================================== */
+
+.reason-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.reason-option {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 12px 14px;
+
+  box-sizing: border-box;
+
+  background: #E8E1D2;
+
+  border: 1px solid transparent;
+
+  color: #3F403A;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.reason-option:hover {
+  border-color: rgba(184, 149, 90, 0.65);
+}
+
+.reason-option.selected {
+  background: rgba(125, 139, 116, 0.13);
+
+  border-color: #7D8B74;
+}
+
+.reason-option input {
+  width: 14px;
+  height: 14px;
+
+  margin: 0;
+
+  accent-color: #7D8B74;
+
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   OTHER REASON
+===================================================== */
+
+.reason-text {
+  width: 100%;
+
+  min-height: 85px;
+
+  margin-top: 12px;
+
+  padding: 12px 14px;
+
+  box-sizing: border-box;
+
+  background: #F7F4EC;
+
+  border: 1px solid rgba(184, 149, 90, 0.5);
+
+  outline: none;
+
+  color: #292A25;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  resize: vertical;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.reason-text::placeholder {
+  color: #9A9A91;
+}
+
+.reason-text:focus {
+  border-color: #B8955A;
+
+  box-shadow:
+    0 0 0 3px rgba(184, 149, 90, 0.10);
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.cancel-error {
+  margin: 12px 0 0;
+
+  color: #8B6240;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   CANCEL ACTIONS
+===================================================== */
+
+.cancel-actions {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 23px;
+}
+
+.keep-button,
+.confirm-cancel-button {
+  flex: 1;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+
+/* Keep order */
+
+.keep-button {
+  background: transparent;
+
+  border: 1px solid #7D8B74;
+
+  color: #62705B;
+}
+
+.keep-button:hover:not(:disabled) {
+  background: #7D8B74;
+
+  color: #F7F4EC;
+}
+
+
+/* Confirm */
+
+.confirm-cancel-button {
+  background: #B8955A;
+
+  border: 1px solid #B8955A;
+
+  color: #F7F4EC;
+}
+
+.confirm-cancel-button:hover:not(:disabled) {
+  background: #292A25;
+
+  border-color: #292A25;
+}
+
+
+/* Disabled */
+
+.keep-button:disabled,
+.confirm-cancel-button:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
 
 @media (max-width: 700px) {
 
   .order-page {
-    padding: 50px 30px;
+    padding: 55px 30px 70px;
   }
 
   .order-header {
@@ -283,7 +995,7 @@
   }
 
   .order-header h1 {
-    font-size: 34px;
+    font-size: 36px;
   }
 
   .order-card {
@@ -291,40 +1003,48 @@
   }
 
   .order-details {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
 
-    gap: 18px;
+    gap: 15px;
   }
 
 }
 
 
-/* =========================================
-   RESPONSIVE - MOBILE
-========================================= */
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (max-width: 500px) {
 
   .order-page {
-    padding: 40px 20px;
+    padding: 45px 18px 60px;
   }
 
-  .order-header h1 {
-    font-size: 30px;
+
+  .order-header {
+    margin-bottom: 35px;
   }
 
   .order-header p {
-    font-size: 11px;
+    font-size: 10px;
+
     letter-spacing: 2.5px;
   }
 
-  .order-header span {
-    font-size: 13px;
+  .order-header h1 {
+    font-size: 31px;
   }
+
+  .order-header span {
+    font-size: 12px;
+  }
+
 
   .order-card {
     padding: 20px;
   }
+
 
   .order-top {
     align-items: flex-start;
@@ -332,52 +1052,178 @@
     gap: 15px;
   }
 
+
   .order-top h2 {
     font-size: 18px;
   }
 
-  .order-status {
-    padding: 7px 11px;
 
-    font-size: 11px;
+  .order-status {
+    min-width: auto;
+
+    padding: 7px 10px;
+
+    font-size: 10px;
   }
 
-  .order-details {
+
+  .order-products {
+    gap: 10px;
+
     padding: 20px 0;
   }
 
-  .view-order-button {
-    padding: 12px;
+
+  .order-product,
+  .order-product-more {
+    width: 68px;
+
+    flex-basis: 68px;
   }
+
+
+  .order-product img,
+  .order-product-more {
+    width: 68px;
+    height: 68px;
+  }
+
+
+  .order-product span {
+    font-size: 10px;
+  }
+
+
+  .tracker {
+    padding: 25px 0 15px;
+  }
+
+
+  .tracker-dot {
+    width: 20px;
+    height: 20px;
+
+    font-size: 9px;
+  }
+
+
+  .tracker-step::before {
+    top: 10px;
+  }
+
+
+  .tracker-step span {
+    max-width: 60px;
+
+    margin-top: 9px;
+
+    font-size: 8px;
+  }
+
+
+  .order-details {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+
+    padding: 20px 0;
+  }
+
+
+  .order-details > div {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid rgba(201, 192, 170, 0.6);
+  }
+
+
+  .order-details > div:last-child {
+    padding-bottom: 0;
+
+    border-bottom: none;
+  }
+
+
+  .order-details p {
+    margin: 0;
+  }
+
+
+  .order-actions {
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+
+  .view-order-button,
+  .track-order-button,
+  .cancel-order-button {
+    min-height: 42px;
+
+    padding: 11px;
+  }
+
 
   .empty-orders {
     padding: 60px 20px;
   }
 
+
+  .cancel-card {
+    max-height: 88vh;
+
+    padding: 28px 20px;
+  }
+
+
+  .cancel-card h2 {
+    font-size: 21px;
+  }
+
 }
 
 
-/* =========================================
+/* =====================================================
    VERY SMALL MOBILE
-========================================= */
+===================================================== */
 
 @media (max-width: 380px) {
 
   .order-page {
-    padding: 35px 15px;
+    padding: 35px 14px 50px;
   }
 
+
   .order-card {
-    padding: 18px;
+    padding: 17px;
   }
+
 
   .order-top {
     flex-direction: column;
+
     align-items: flex-start;
   }
 
+
   .order-status {
     align-self: flex-start;
+  }
+
+
+  .tracker-step span {
+    font-size: 7px;
+  }
+
+
+  .cancel-actions {
+    flex-direction: column;
   }
 
 }

@@ -7,9 +7,10 @@ import {
 
 import { Observable } from 'rxjs';
 
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 import { WishlistItem } from '../models/wishlist-item.models';
+import { ToastService } from './toast.service';
 
 
 @Injectable({
@@ -19,9 +20,15 @@ export class WishlistService {
 
   private http = inject(HttpClient);
 
+  private toastService = inject(ToastService);
+
   private apiUrl =
     'http://localhost:3000/wishlist';
 
+
+  // =====================================================
+  // GET WISHLIST
+  // =====================================================
 
   getWishlist(
     userId: string
@@ -39,6 +46,10 @@ export class WishlistService {
   }
 
 
+  // =====================================================
+  // ADD TO WISHLIST
+  // =====================================================
+
   addToWishlist(
     item: WishlistItem
   ): Observable<WishlistItem> {
@@ -46,10 +57,24 @@ export class WishlistService {
     return this.http.post<WishlistItem>(
       this.apiUrl,
       item
+    ).pipe(
+
+      tap(() => {
+
+        this.toastService.success(
+          'Added to wishlist.'
+        );
+
+      })
+
     );
 
   }
 
+
+  // =====================================================
+  // REMOVE FROM WISHLIST
+  // =====================================================
 
   removeFromWishlist(
     id: string
@@ -57,10 +82,24 @@ export class WishlistService {
 
     return this.http.delete<void>(
       `${this.apiUrl}/${id}`
+    ).pipe(
+
+      tap(() => {
+
+        this.toastService.success(
+          'Removed from wishlist.'
+        );
+
+      })
+
     );
 
   }
 
+
+  // =====================================================
+  // CHECK PRODUCT IN WISHLIST
+  // =====================================================
 
   isInWishlist(
     productId: string,
@@ -88,5 +127,6 @@ export class WishlistService {
       );
 
   }
+  
 
 }

@@ -21,16 +21,21 @@ import { AddressService } from '../../core/services/address.service';
 
 import { HeaderComponent } from '../../shared/components/header/header/header.component';
 
+
 @Component({
   selector: 'app-checkout',
+
   standalone: true,
+
   imports: [
     AsyncPipe,
     FormsModule,
     RouterLink,
     HeaderComponent
   ],
+
   templateUrl: './checkout.component.html',
+
   styleUrl: './checkout.component.css'
 })
 export class CheckoutComponent {
@@ -39,119 +44,212 @@ export class CheckoutComponent {
   private addressService = inject(AddressService);
   private router = inject(Router);
 
-  cartItems$ = this.store.select(selectCartItems);
-  cartTotal$ = this.store.select(selectCartTotalAmount);
 
-  // =========================
+  // =====================================================
+  // CART
+  // =====================================================
+
+  cartItems$ =
+    this.store.select(
+      selectCartItems
+    );
+
+  cartTotal$ =
+    this.store.select(
+      selectCartTotalAmount
+    );
+
+
+  // =====================================================
   // ADDRESS
-  // =========================
+  // =====================================================
 
   addresses: Address[] = [];
 
   selectedAddressId: string | null = null;
 
   isAddressFormOpen = false;
+
   isEditingAddress = false;
+
   editingAddressId: string | null = null;
 
   addressLoading = true;
+
   addressError = '';
+
   addressSuccess = '';
 
+
+  // =====================================================
+  // FIELD VALIDATION ERRORS
+  // =====================================================
+
+  fullNameError = '';
+
+  phoneError = '';
+
+  addressLineError = '';
+
+  cityError = '';
+
+  stateError = '';
+
+  pincodeError = '';
+
+
+  // =====================================================
+  // ADDRESS FORM
+  // =====================================================
+
   addressForm: Address = {
+
     userId: '',
+
     fullName: '',
+
     phone: '',
+
     addressLine: '',
+
     city: '',
+
     state: '',
+
     pincode: '',
+
     isDefault: false
+
   };
 
-  // =========================
+
+  // =====================================================
   // DELETE ADDRESS POPUP
-  // =========================
+  // =====================================================
 
   isDeletePopupOpen = false;
+
   addressToDelete: Address | null = null;
+
   isDeletingAddress = false;
 
-  // =========================
+
+  // =====================================================
   // PAYMENT
-  // =========================
+  // =====================================================
 
   paymentMethod = '';
+
   upiId = '';
+
   paymentError = '';
 
-  // =========================
+
+  // =====================================================
   // ORDER
-  // =========================
+  // =====================================================
 
   orderError = '';
+
   isPlacingOrder = false;
 
+
+  // =====================================================
+  // CONSTRUCTOR
+  // =====================================================
+
   constructor() {
+
     this.loadAddresses();
+
   }
 
-  // =========================
+
+  // =====================================================
   // LOAD ADDRESSES
-  // =========================
+  // =====================================================
 
   loadAddresses(): void {
 
-    const userId = localStorage.getItem('userId');
+    const userId =
+      localStorage.getItem('userId');
+
 
     if (!userId) {
+
       this.addressLoading = false;
-      this.addressError = 'Please sign in to continue.';
+
+      this.addressError =
+        'Please sign in to continue.';
+
       return;
+
     }
 
-    this.addressService.getUserAddresses(userId).subscribe({
 
-      next: (addresses: Address[]) => {
+    this.addressService
+      .getUserAddresses(userId)
+      .subscribe({
 
-        this.addresses = addresses;
+        next: (addresses: Address[]) => {
 
-        const defaultAddress = addresses.find(
-          address => address.isDefault
-        );
+          this.addresses = addresses;
 
-        if (defaultAddress?.id) {
 
-          this.selectedAddressId = defaultAddress.id;
+          const defaultAddress =
+            addresses.find(
+              address => address.isDefault
+            );
 
-        } else if (
-          addresses.length > 0 &&
-          addresses[0].id
-        ) {
 
-          this.selectedAddressId = addresses[0].id;
+          if (defaultAddress?.id) {
+
+            this.selectedAddressId =
+              defaultAddress.id;
+
+          }
+
+          else if (
+            addresses.length > 0 &&
+            addresses[0].id
+          ) {
+
+            this.selectedAddressId =
+              addresses[0].id;
+
+          }
+
+
+          this.addressLoading = false;
+
+        },
+
+
+        error: (error: unknown) => {
+
+          console.error(error);
+
+          this.addressError =
+            'Unable to load your saved addresses.';
+
+          this.addressLoading = false;
+
         }
 
-        this.addressLoading = false;
-      },
+      });
 
-      error: (error: unknown) => {
-
-        console.error(error);
-
-        this.addressError =
-          'Unable to load your saved addresses.';
-
-        this.addressLoading = false;
-      }
-    });
   }
 
-  // =========================
+
+  // =====================================================
   // OPEN ADD ADDRESS
-  // =========================
+  // =====================================================
 
   openAddAddress(): void {
+
+    /*
+     * Maximum 2 saved addresses
+     */
 
     if (this.addresses.length >= 2) {
 
@@ -159,27 +257,41 @@ export class CheckoutComponent {
         'You can save up to 2 addresses.';
 
       return;
+
     }
 
-    const userId = localStorage.getItem('userId');
 
-    const storedUser = localStorage.getItem('user');
+    const userId =
+      localStorage.getItem('userId');
+
+
+    const storedUser =
+      localStorage.getItem('user');
+
 
     let userName = '';
+
 
     if (storedUser) {
 
       try {
 
-        const user = JSON.parse(storedUser);
+        const user =
+          JSON.parse(storedUser);
 
-        userName = user.name || '';
+        userName =
+          user.name || '';
 
-      } catch (error) {
+      }
+
+      catch (error) {
 
         console.error(error);
+
       }
+
     }
+
 
     this.addressForm = {
 
@@ -197,8 +309,11 @@ export class CheckoutComponent {
 
       pincode: '',
 
-      isDefault: this.addresses.length === 0
+      isDefault:
+        this.addresses.length === 0
+
     };
+
 
     this.isAddressFormOpen = true;
 
@@ -206,20 +321,28 @@ export class CheckoutComponent {
 
     this.editingAddressId = null;
 
+
+    this.clearValidationErrors();
+
     this.addressError = '';
 
     this.addressSuccess = '';
+
   }
 
-  // =========================
-  // EDIT ADDRESS
-  // =========================
 
-  editAddress(address: Address): void {
+  // =====================================================
+  // EDIT ADDRESS
+  // =====================================================
+
+  editAddress(
+    address: Address
+  ): void {
 
     this.addressForm = {
       ...address
     };
+
 
     this.isEditingAddress = true;
 
@@ -228,14 +351,19 @@ export class CheckoutComponent {
 
     this.isAddressFormOpen = true;
 
+
+    this.clearValidationErrors();
+
     this.addressError = '';
 
     this.addressSuccess = '';
+
   }
 
-  // =========================
+
+  // =====================================================
   // CANCEL ADDRESS FORM
-  // =========================
+  // =====================================================
 
   cancelAddressForm(): void {
 
@@ -245,48 +373,369 @@ export class CheckoutComponent {
 
     this.editingAddressId = null;
 
+    this.clearValidationErrors();
+
     this.addressError = '';
 
     this.addressSuccess = '';
+
   }
 
-  // =========================
+
+  // =====================================================
+  // CLEAR VALIDATION ERRORS
+  // =====================================================
+
+  clearValidationErrors(): void {
+
+    this.fullNameError = '';
+
+    this.phoneError = '';
+
+    this.addressLineError = '';
+
+    this.cityError = '';
+
+    this.stateError = '';
+
+    this.pincodeError = '';
+
+  }
+
+
+  // =====================================================
+  // FULL NAME VALIDATION
+  // =====================================================
+
+  validateFullName(): void {
+
+    const value =
+      this.addressForm.fullName.trim();
+
+
+    if (!value) {
+
+      this.fullNameError =
+        'Full name is required.';
+
+      return;
+
+    }
+
+
+    if (value.length < 2) {
+
+      this.fullNameError =
+        'Full name must contain at least 2 characters.';
+
+      return;
+
+    }
+
+
+    if (!/^[A-Za-z ]+$/.test(value)) {
+
+      this.fullNameError =
+        'Full name can contain only letters and spaces.';
+
+      return;
+
+    }
+
+
+    this.fullNameError = '';
+
+  }
+
+
+  // =====================================================
+  // PHONE VALIDATION
+  // =====================================================
+
+  validatePhone(): void {
+
+    const value =
+      this.addressForm.phone.trim();
+
+
+    if (!value) {
+
+      this.phoneError =
+        'Phone number is required.';
+
+      return;
+
+    }
+
+
+    if (!/^[0-9]+$/.test(value)) {
+
+      this.phoneError =
+        'Phone number can contain only digits.';
+
+      return;
+
+    }
+
+
+    if (!/^[0-9]{10}$/.test(value)) {
+
+      this.phoneError =
+        'Phone number must contain exactly 10 digits.';
+
+      return;
+
+    }
+
+
+    this.phoneError = '';
+
+  }
+
+
+  // =====================================================
   // ADDRESS VALIDATION
-  // =========================
+  // =====================================================
+
+  validateAddressLine(): void {
+
+    const value =
+      this.addressForm.addressLine.trim();
+
+
+    if (!value) {
+
+      this.addressLineError =
+        'Address is required.';
+
+      return;
+
+    }
+
+
+    if (value.length < 5) {
+
+      this.addressLineError =
+        'Address must contain at least 5 characters.';
+
+      return;
+
+    }
+
+
+    this.addressLineError = '';
+
+  }
+
+
+  // =====================================================
+  // CITY VALIDATION
+  // =====================================================
+
+  validateCity(): void {
+
+    const value =
+      this.addressForm.city.trim();
+
+
+    if (!value) {
+
+      this.cityError =
+        'City is required.';
+
+      return;
+
+    }
+
+
+    if (!/^[A-Za-z ]+$/.test(value)) {
+
+      this.cityError =
+        'City can contain only letters and spaces.';
+
+      return;
+
+    }
+
+
+    if (value.length < 2) {
+
+      this.cityError =
+        'City must contain at least 2 characters.';
+
+      return;
+
+    }
+
+
+    this.cityError = '';
+
+  }
+
+
+  // =====================================================
+  // STATE VALIDATION
+  // =====================================================
+
+  validateState(): void {
+
+    const value =
+      this.addressForm.state.trim();
+
+
+    if (!value) {
+
+      this.stateError =
+        'State is required.';
+
+      return;
+
+    }
+
+
+    if (!/^[A-Za-z ]+$/.test(value)) {
+
+      this.stateError =
+        'State can contain only letters and spaces.';
+
+      return;
+
+    }
+
+
+    if (value.length < 2) {
+
+      this.stateError =
+        'State must contain at least 2 characters.';
+
+      return;
+
+    }
+
+
+    this.stateError = '';
+
+  }
+
+
+  // =====================================================
+  // PINCODE VALIDATION
+  // =====================================================
+
+  validatePincode(): void {
+
+    const value =
+      this.addressForm.pincode.trim();
+
+
+    if (!value) {
+
+      this.pincodeError =
+        'Pincode is required.';
+
+      return;
+
+    }
+
+
+    if (!/^[0-9]+$/.test(value)) {
+
+      this.pincodeError =
+        'Pincode can contain only digits.';
+
+      return;
+
+    }
+
+
+    if (!/^[0-9]{6}$/.test(value)) {
+
+      this.pincodeError =
+        'Pincode must contain exactly 6 digits.';
+
+      return;
+
+    }
+
+
+    this.pincodeError = '';
+
+  }
+
+
+  // =====================================================
+  // ADDRESS VALIDATION
+  // =====================================================
+
+  validateAddressForm(): void {
+
+    this.validateFullName();
+
+    this.validatePhone();
+
+    this.validateAddressLine();
+
+    this.validateCity();
+
+    this.validateState();
+
+    this.validatePincode();
+
+  }
+
+
+  // =====================================================
+  // CHECK ADDRESS VALID
+  // =====================================================
 
   isAddressValid(): boolean {
 
+    this.validateAddressForm();
+
+
     return (
 
-      this.addressForm.fullName.trim().length >= 2 &&
+      !this.fullNameError &&
 
-      /^[0-9]{10}$/.test(
-        this.addressForm.phone.trim()
-      ) &&
+      !this.phoneError &&
 
-      this.addressForm.addressLine.trim().length >= 5 &&
+      !this.addressLineError &&
 
-      this.addressForm.city.trim().length >= 2 &&
+      !this.cityError &&
 
-      this.addressForm.state.trim().length >= 2 &&
+      !this.stateError &&
 
-      /^[0-9]{6}$/.test(
-        this.addressForm.pincode.trim()
-      )
+      !this.pincodeError
 
     );
+
   }
 
-  // =========================
+
+  // =====================================================
   // SAVE ADDRESS
-  // =========================
+  // =====================================================
 
   saveAddress(): void {
 
     this.addressError = '';
+
     this.addressSuccess = '';
 
-    const userId = localStorage.getItem('userId');
+
+    this.validateAddressForm();
+
+
+    if (!this.isAddressValid()) {
+
+      return;
+
+    }
+
+
+    const userId =
+      localStorage.getItem('userId');
+
 
     if (!userId) {
 
@@ -294,15 +743,9 @@ export class CheckoutComponent {
         'Please sign in before saving an address.';
 
       return;
+
     }
 
-    if (!this.isAddressValid()) {
-
-      this.addressError =
-        'Please enter valid address details.';
-
-      return;
-    }
 
     const addressData: Address = {
 
@@ -327,11 +770,13 @@ export class CheckoutComponent {
 
       pincode:
         this.addressForm.pincode.trim()
+
     };
 
-    // =========================
+
+    // ===================================================
     // UPDATE ADDRESS
-    // =========================
+    // ===================================================
 
     if (
       this.isEditingAddress &&
@@ -345,27 +790,42 @@ export class CheckoutComponent {
         )
         .subscribe({
 
-          next: (updatedAddress: Address) => {
+          next: (
+            updatedAddress: Address
+          ) => {
 
             this.addresses =
-              this.addresses.map(address =>
-                address.id === updatedAddress.id
-                  ? updatedAddress
-                  : address
+              this.addresses.map(
+                address =>
+                  address.id ===
+                  updatedAddress.id
+                    ? updatedAddress
+                    : address
               );
+
 
             this.selectedAddressId =
               updatedAddress.id || null;
 
+
             this.addressSuccess =
               'Address updated successfully.';
 
-            this.isAddressFormOpen = false;
 
-            this.isEditingAddress = false;
+            this.isAddressFormOpen =
+              false;
 
-            this.editingAddressId = null;
+            this.isEditingAddress =
+              false;
+
+            this.editingAddressId =
+              null;
+
+
+            this.clearValidationErrors();
+
           },
+
 
           error: (error: unknown) => {
 
@@ -373,37 +833,54 @@ export class CheckoutComponent {
 
             this.addressError =
               'Unable to update the address.';
+
           }
+
         });
 
+
       return;
+
     }
 
-    // =========================
+
+    // ===================================================
     // ADD NEW ADDRESS
-    // =========================
+    // ===================================================
 
     this.addressService
       .addAddress(addressData)
       .subscribe({
 
-        next: (newAddress: Address) => {
+        next: (
+          newAddress: Address
+        ) => {
 
           this.addresses = [
+
             ...this.addresses,
+
             newAddress
+
           ];
+
 
           this.selectedAddressId =
             newAddress.id || null;
 
+
           this.addressSuccess =
             'Address saved successfully.';
 
-          this.isAddressFormOpen = false;
+
+          this.isAddressFormOpen =
+            false;
+
 
           this.resetAddressForm();
+
         },
+
 
         error: (error: unknown) => {
 
@@ -411,18 +888,23 @@ export class CheckoutComponent {
 
           this.addressError =
             'Unable to save the address.';
+
         }
+
       });
+
   }
 
-  // =========================
+
+  // =====================================================
   // RESET ADDRESS FORM
-  // =========================
+  // =====================================================
 
   resetAddressForm(): void {
 
     const userId =
       localStorage.getItem('userId') || '';
+
 
     this.addressForm = {
 
@@ -441,16 +923,22 @@ export class CheckoutComponent {
       pincode: '',
 
       isDefault: false
+
     };
+
 
     this.isEditingAddress = false;
 
     this.editingAddressId = null;
+
+    this.clearValidationErrors();
+
   }
 
-  // =========================
+
+  // =====================================================
   // DELETE ADDRESS POPUP
-  // =========================
+  // =====================================================
 
   openDeleteAddressPopup(
     address: Address
@@ -463,7 +951,9 @@ export class CheckoutComponent {
     this.addressError = '';
 
     this.addressSuccess = '';
+
   }
+
 
   cancelDeleteAddress(): void {
 
@@ -472,22 +962,29 @@ export class CheckoutComponent {
     this.addressToDelete = null;
 
     this.isDeletingAddress = false;
+
   }
+
 
   confirmDeleteAddress(): void {
 
     if (!this.addressToDelete?.id) {
+
       return;
+
     }
+
 
     const addressId =
       this.addressToDelete.id;
+
 
     this.isDeletingAddress = true;
 
     this.addressError = '';
 
     this.addressSuccess = '';
+
 
     this.addressService
       .deleteAddress(addressId)
@@ -501,9 +998,10 @@ export class CheckoutComponent {
                 address.id !== addressId
             );
 
-          // If deleted address was selected
+
           if (
-            this.selectedAddressId === addressId
+            this.selectedAddressId ===
+            addressId
           ) {
 
             if (this.addresses.length > 0) {
@@ -514,26 +1012,39 @@ export class CheckoutComponent {
                     address.isDefault
                 );
 
+
               this.selectedAddressId =
                 defaultAddress?.id ||
                 this.addresses[0].id ||
                 null;
 
-            } else {
-
-              this.selectedAddressId = null;
             }
+
+            else {
+
+              this.selectedAddressId =
+                null;
+
+            }
+
           }
+
 
           this.addressSuccess =
             'Address removed successfully.';
 
-          this.isDeletePopupOpen = false;
 
-          this.addressToDelete = null;
+          this.isDeletePopupOpen =
+            false;
 
-          this.isDeletingAddress = false;
+          this.addressToDelete =
+            null;
+
+          this.isDeletingAddress =
+            false;
+
         },
+
 
         error: (error: unknown) => {
 
@@ -542,38 +1053,54 @@ export class CheckoutComponent {
           this.addressError =
             'Unable to remove the address.';
 
-          this.isDeletingAddress = false;
+          this.isDeletingAddress =
+            false;
+
         }
+
       });
+
   }
 
-  // =========================
+
+  // =====================================================
   // PAYMENT
-  // =========================
+  // =====================================================
 
   onPaymentMethodChange(): void {
 
     this.paymentError = '';
 
+
     if (this.paymentMethod !== 'UPI') {
 
       this.upiId = '';
+
     }
+
   }
+
+
+  // =====================================================
+  // UPI VALIDATION
+  // =====================================================
 
   isUpiValid(): boolean {
 
     const upiPattern =
       /^[a-zA-Z0-9._-]+@[a-zA-Z]{2,}$/;
 
+
     return upiPattern.test(
       this.upiId.trim()
     );
+
   }
 
-  // =========================
+
+  // =====================================================
   // PLACE ORDER
-  // =========================
+  // =====================================================
 
   placeOrder(): void {
 
@@ -581,13 +1108,16 @@ export class CheckoutComponent {
 
     this.paymentError = '';
 
+
     if (!this.selectedAddressId) {
 
       this.orderError =
         'Please select a delivery address.';
 
       return;
+
     }
+
 
     if (!this.selectedAddress) {
 
@@ -595,7 +1125,9 @@ export class CheckoutComponent {
         'Please select a valid delivery address.';
 
       return;
+
     }
+
 
     if (!this.paymentMethod) {
 
@@ -603,7 +1135,9 @@ export class CheckoutComponent {
         'Please select a payment method.';
 
       return;
+
     }
+
 
     if (
       this.paymentMethod === 'UPI' &&
@@ -614,88 +1148,120 @@ export class CheckoutComponent {
         'Please enter a valid UPI ID.';
 
       return;
+
     }
+
 
     this.cartItems$
       .pipe(take(1))
-      .subscribe((items: CartItem[]) => {
+      .subscribe(
+        (items: CartItem[]) => {
 
-        if (items.length === 0) {
+          if (items.length === 0) {
 
-          this.orderError =
-            'Your cart is empty.';
+            this.orderError =
+              'Your cart is empty.';
 
-          return;
-        }
+            return;
 
-        this.cartTotal$
-          .pipe(take(1))
-          .subscribe((total: number) => {
+          }
 
-            const userId =
-              localStorage.getItem('userId');
 
-            if (!userId) {
+          this.cartTotal$
+            .pipe(take(1))
+            .subscribe(
+              (total: number) => {
 
-              this.orderError =
-                'Please sign in to place your order.';
+                const userId =
+                  localStorage.getItem(
+                    'userId'
+                  );
 
-              return;
-            }
 
-            const address =
-              this.selectedAddress!;
+                if (!userId) {
 
-            const shippingAddress =
-              `${address.fullName}, ` +
-              `${address.phone}, ` +
-              `${address.addressLine}, ` +
-              `${address.city}, ` +
-              `${address.state}, ` +
-              `${address.pincode}`;
+                  this.orderError =
+                    'Please sign in to place your order.';
 
-            const order: Order = {
+                  return;
 
-              id: Date.now(),
+                }
 
-              userId: userId,
 
-              items: items,
+                const address =
+                  this.selectedAddress!;
 
-              totalAmount: total,
 
-              shippingAddress:
-                shippingAddress,
+                const shippingAddress =
 
-              orderDate: new Date(),
+                  `${address.fullName}, ` +
 
-              status: 'Success',
+                  `${address.phone}, ` +
 
-              paymentMethod:
-                this.paymentMethod
-            };
+                  `${address.addressLine}, ` +
 
-            this.isPlacingOrder = true;
+                  `${address.city}, ` +
 
-            this.store.dispatch(
-              createOrder({
-                order: order
-              })
+                  `${address.state}, ` +
+
+                  `${address.pincode}`;
+
+
+                const order: Order = {
+
+                  id: Date.now(),
+
+                  userId: userId,
+
+                  items: items,
+
+                  totalAmount: total,
+
+                  shippingAddress:
+                    shippingAddress,
+
+                  orderDate:
+                    new Date(),
+
+                  status: 'Success',
+
+                  paymentMethod:
+                    this.paymentMethod
+
+                };
+
+
+                this.isPlacingOrder = true;
+
+
+                this.store.dispatch(
+                  createOrder({
+                    order: order
+                  })
+                );
+
+              }
             );
-          });
-      });
+
+        }
+      );
+
   }
 
-  // =========================
-  // SELECTED ADDRESS
-  // =========================
 
-  get selectedAddress(): Address | undefined {
+  // =====================================================
+  // SELECTED ADDRESS
+  // =====================================================
+
+  get selectedAddress():
+    Address | undefined {
 
     return this.addresses.find(
       address =>
         address.id ===
         this.selectedAddressId
     );
+
   }
+
 }

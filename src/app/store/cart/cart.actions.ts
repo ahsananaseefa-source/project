@@ -53,3 +53,10 @@ export const loadCartSuccess = createAction(
     items: CartItem[];
   }>()
 );
+
+
+// Fired when a user tries to add a new product
+// but the cart already has the maximum number of products
+export const cartLimitReached = createAction(
+  '[Cart] Product Limit Reached'
+);

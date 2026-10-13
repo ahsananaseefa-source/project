@@ -13,6 +13,7 @@ import {
 } from 'rxjs/operators';
 
 import { CartItem } from '../models/cart-item.model';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,9 @@ import { CartItem } from '../models/cart-item.model';
 export class CartService {
 
   private http = inject(HttpClient);
+
+  private toastService = inject(ToastService);
+
 
   // =====================================================
   // STORAGE / API
@@ -122,6 +126,10 @@ export class CartService {
   }
 
 
+  // =====================================================
+  // ADD TO CART
+  // =====================================================
+
   addToCart(
     item: CartItem
   ): Observable<CartItem> {
@@ -129,10 +137,24 @@ export class CartService {
     return this.http.post<CartItem>(
       this.apiUrl,
       item
+    ).pipe(
+
+      tap(() => {
+
+        this.toastService.success(
+          'Product added to cart.'
+        );
+
+      })
+
     );
 
   }
 
+
+  // =====================================================
+  // UPDATE CART QUANTITY
+  // =====================================================
 
   updateCartItem(
     id: string,
@@ -149,16 +171,34 @@ export class CartService {
   }
 
 
+  // =====================================================
+  // REMOVE FROM CART
+  // =====================================================
+
   removeFromCart(
     id: string
   ): Observable<void> {
 
     return this.http.delete<void>(
       `${this.apiUrl}/${id}`
+    ).pipe(
+
+      tap(() => {
+
+        this.toastService.success(
+          'Product removed from cart.'
+        );
+
+      })
+
     );
 
   }
 
+
+  // =====================================================
+  // CLEAR USER CART
+  // =====================================================
 
   clearUserCart(
     items: CartItem[]
@@ -248,7 +288,9 @@ export class CartService {
           if (
             maximumQuantity <= 0
           ) {
+
             continue;
+
           }
 
 

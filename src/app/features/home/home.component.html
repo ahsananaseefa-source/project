@@ -228,7 +228,7 @@
 
 
               @for (
-                product of products;
+                product of getPaginatedProducts(products);
                 track product.id
               ) {
 
@@ -364,6 +364,90 @@
               }
 
             </div>
+
+
+            <!-- =================================================
+                 PAGINATION
+            ================================================== -->
+
+            @if (
+              getTotalPages(products) > 1
+            ) {
+
+              <div class="pagination">
+
+
+                <!-- PREVIOUS BUTTON -->
+
+                <button
+                  type="button"
+
+                  class="pagination-arrow"
+
+                  [disabled]="
+                    currentPage === 1
+                  "
+
+                  (click)="
+                    previousPage()
+                  ">
+
+                  ‹
+
+                </button>
+
+
+                <!-- PAGE NUMBERS -->
+
+                @for (
+                  page of getPageNumbers(products);
+                  track page
+                ) {
+
+                  <button
+                    type="button"
+
+                    class="pagination-number"
+
+                    [class.active]="
+                      currentPage === page
+                    "
+
+                    (click)="
+                      changePage(page)
+                    ">
+
+                    {{ page }}
+
+                  </button>
+
+                }
+
+
+                <!-- NEXT BUTTON -->
+
+                <button
+                  type="button"
+
+                  class="pagination-arrow"
+
+                  [disabled]="
+                    currentPage ===
+                    getTotalPages(products)
+                  "
+
+                  (click)="
+                    nextPage(products)
+                  ">
+
+                  ›
+
+                </button>
+
+
+              </div>
+
+            }
 
           }
 

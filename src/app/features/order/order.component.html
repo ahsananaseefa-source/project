@@ -3,31 +3,21 @@
 <div class="order-page">
 
   <div class="order-header">
-
     <p>ZELL COLLECTION</p>
-
     <h1>My Orders</h1>
-
-    <span>
-      View your order history
-    </span>
-
+    <span>Track and manage your orders</span>
   </div>
 
 
   @if (loading$ | async) {
 
-    <p class="message">
-      Loading orders...
-    </p>
+    <p class="message">Loading orders...</p>
 
   }
 
   @else if (error$ | async) {
 
-    <p class="message">
-      Error loading orders.
-    </p>
+    <p class="message">Error loading orders.</p>
 
   }
 
@@ -38,15 +28,8 @@
       @if (orders.length === 0) {
 
         <div class="empty-orders">
-
-          <h2>
-            No orders yet
-          </h2>
-
-          <p>
-            Your placed orders will appear here.
-          </p>
-
+          <h2>No orders yet</h2>
+          <p>Your placed orders will appear here.</p>
         </div>
 
       }
@@ -55,100 +38,163 @@
 
         <div class="orders-container">
 
-          @for (
-            order of orders;
-            track order.id
-          ) {
+          @for (order of orders; track order.id) {
 
             <div class="order-card">
 
+              <!-- TOP -->
               <div class="order-top">
 
                 <div>
-
-                  <p class="order-label">
-                    Order ID
-                  </p>
-
-                  <h2>
-                    #{{ order.id }}
-                  </h2>
-
+                  <p class="order-label">Order ID</p>
+                  <h2>#{{ order.id }}</h2>
                 </div>
 
-
-                <span class="order-status">
-
-                  {{ order.status }}
-
+                <span
+                  class="order-status"
+                  [class.cancelled]="isCancelled(order)"
+                >
+                  {{ getStatusLabel(order) }}
                 </span>
 
               </div>
 
 
+              <!-- PRODUCT IMAGES -->
+              <div class="order-products">
+
+                @for (item of getPreviewItems(order); track $index) {
+
+                  <div class="order-product">
+
+                    <img
+                      [src]="getItemImage(item)"
+                      [alt]="getItemName(item)"
+                    >
+
+                    <span>{{ getItemName(item) }}</span>
+
+                  </div>
+
+                }
+
+                @if (getExtraItemCount(order) > 0) {
+
+                  <div class="order-product-more">
+                    +{{ getExtraItemCount(order) }}
+                  </div>
+
+                }
+
+              </div>
+
+
+              <!-- TRACKING (hidden until user clicks "Track Order") -->
+
+              @if (isCancelled(order)) {
+
+                <div class="cancelled-box">
+
+                  <strong>This order was cancelled</strong>
+
+                  @if (order.cancelReason) {
+                    <p>Reason: {{ order.cancelReason }}</p>
+                  }
+
+                </div>
+
+              } @else if (isTrackingOpen(order)) {
+
+                <div class="tracker">
+
+                  @for (step of trackingSteps; track step; let i = $index) {
+
+                    <div
+                      class="tracker-step"
+                      [class.done]="i <= getStepIndex(order)"
+                      [class.current]="i === getStepIndex(order)"
+                    >
+
+                      <div class="tracker-dot">
+                        @if (i < getStepIndex(order)) {
+                          ✓
+                        }
+                      </div>
+
+                      <span>{{ step }}</span>
+
+                    </div>
+
+                  }
+
+                </div>
+
+              }
+
+
+              <!-- DETAILS -->
               <div class="order-details">
 
                 <div>
-
-                  <p>
-                    Order Date
-                  </p>
-
+                  <p>Order Date</p>
                   <strong>
-
-                    {{
-                      order.orderDate
-                        | date: "dd MMM yyyy"
-                    }}
-
+                    {{ order.orderDate | date: "dd MMM yyyy" }}
                   </strong>
-
                 </div>
 
-
                 <div>
-
-                  <p>
-                    Items
-                  </p>
-
+                  <p>Items</p>
                   <strong>
-
                     {{ order.items.length }}
-
-                    Item{{
-                      order.items.length === 1
-                        ? ""
-                        : "s"
-                    }}
-
+                    Item{{ order.items.length === 1 ? "" : "s" }}
                   </strong>
-
                 </div>
 
-
                 <div>
-
-                  <p>
-                    Total
-                  </p>
-
-                  <strong>
-                    ₹{{ order.totalAmount }}
-                  </strong>
-
+                  <p>Total</p>
+                  <strong>₹{{ order.totalAmount }}</strong>
                 </div>
 
               </div>
 
 
-              <a
-                [routerLink]="['/order', order.id]"
-                class="view-order-button">
+              <!-- ACTIONS -->
+              <div class="order-actions">
 
-                View Order
+                <a
+                  [routerLink]="['/order', order.id]"
+                  class="view-order-button"
+                >
+                  View Order
+                </a>
 
-              </a>
+                @if (!isCancelled(order)) {
+
+                  <button
+                    type="button"
+                    class="track-order-button"
+                    [class.active]="isTrackingOpen(order)"
+                    [attr.aria-expanded]="isTrackingOpen(order)"
+                    (click)="toggleTracking(order)"
+                  >
+                    {{ isTrackingOpen(order) ? 'Hide Tracking' : 'Track Order' }}
+                  </button>
+
+                }
+
+                @if (canCancel(order)) {
+
+                  <button
+                    type="button"
+                    class="cancel-order-button"
+                    (click)="openCancel(order)"
+                  >
+                    Cancel Order
+                  </button>
+
+                }
+
+              </div>
 
             </div>
 
@@ -163,3 +209,102 @@
   }
 
 </div>
+
+
+<!-- =====================================================
+     CANCEL ORDER POPUP
+====================================================== -->
+
+@if (cancelModalOpen) {
+
+  <div class="cancel-overlay" (click)="closeCancel()">
+
+    <div
+      class="cancel-card"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+
+      <p class="cancel-brand">ZELL COLLECTION</p>
+
+      <h2>Cancel Order #{{ orderToCancel?.id }}?</h2>
+
+      <p class="cancel-subtitle">
+        Please tell us why you are cancelling this order.
+      </p>
+
+      <div class="reason-list">
+
+        @for (reason of cancelReasons; track reason) {
+
+          <label
+            class="reason-option"
+            [class.selected]="selectedReason === reason"
+          >
+
+            <input
+              type="radio"
+              name="cancelReason"
+              [checked]="selectedReason === reason"
+              (change)="selectReason(reason)"
+            >
+
+            <span>{{ reason }}</span>
+
+          </label>
+
+        }
+
+      </div>
+
+      @if (selectedReason === 'Other') {
+
+        <textarea
+          class="reason-text"
+          rows="3"
+          maxlength="200"
+          placeholder="Tell us the reason"
+          [value]="otherReason"
+          (input)="otherReason = $any($event.target).value; reasonError = ''"
+        ></textarea>
+
+      }
+
+      @if (reasonError) {
+
+        <p class="cancel-error">{{ reasonError }}</p>
+
+      }
+
+      <div class="cancel-actions">
+
+        <button
+          type="button"
+          class="keep-button"
+          [disabled]="cancelling"
+          (click)="closeCancel()"
+        >
+          Keep Order
+        </button>
+
+        <button
+          type="button"
+          class="confirm-cancel-button"
+          [disabled]="cancelling"
+          (click)="confirmCancel()"
+        >
+          @if (cancelling) {
+            Cancelling...
+          } @else {
+            Cancel Order
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

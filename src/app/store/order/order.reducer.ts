@@ -25,17 +25,22 @@ export const orderReducer = createReducer(
   initialOrderState,
 
 
+  // =====================================================
   // CREATE ORDER
+  // =====================================================
 
-  on(createOrder, (state) => ({
+  on(
+    createOrder,
+    (state) => ({
 
-    ...state,
+      ...state,
 
-    loading: true,
+      loading: true,
 
-    error: null
+      error: null
 
-  })),
+    })
+  ),
 
 
   on(
@@ -65,23 +70,28 @@ export const orderReducer = createReducer(
 
       loading: false,
 
-      error: error
+      error
 
     })
   ),
 
 
+  // =====================================================
   // LOAD ORDERS
+  // =====================================================
 
-  on(loadOrders, (state) => ({
+  on(
+    loadOrders,
+    (state) => ({
 
-    ...state,
+      ...state,
 
-    loading: true,
+      loading: true,
 
-    error: null
+      error: null
 
-  })),
+    })
+  ),
 
 
   on(
@@ -90,7 +100,7 @@ export const orderReducer = createReducer(
 
       ...state,
 
-      orders: orders,
+      orders,
 
       loading: false,
 
@@ -108,23 +118,28 @@ export const orderReducer = createReducer(
 
       loading: false,
 
-      error: error
+      error
 
     })
   ),
 
 
+  // =====================================================
   // CANCEL ORDER
+  // =====================================================
 
-  on(cancelOrder, (state) => ({
+  on(
+    cancelOrder,
+    (state) => ({
 
-    ...state,
+      ...state,
 
-    loading: true,
+      loading: true,
 
-    error: null
+      error: null
 
-  })),
+    })
+  ),
 
 
   on(
@@ -135,7 +150,7 @@ export const orderReducer = createReducer(
 
       orders: state.orders.map(
         existingOrder =>
-          existingOrder.id === order.id
+          String(existingOrder.id) === String(order.id)
             ? order
             : existingOrder
       ),
@@ -156,7 +171,7 @@ export const orderReducer = createReducer(
 
       loading: false,
 
-      error: error
+      error
 
     })
   )

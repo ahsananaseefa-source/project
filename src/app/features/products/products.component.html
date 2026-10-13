@@ -2,10 +2,7 @@
 
 <div class="products-page">
 
-  <!-- =====================================================
-       PAGE HEADER
-  ====================================================== -->
-
+  <!-- PAGE HEADER -->
   <section class="products-header">
 
     <div class="header-content">
@@ -15,19 +12,25 @@
       <h1>Our Jewellery</h1>
 
       @if (selectedCategory) {
+
         <span class="category-title">
           {{ selectedCategory }}
         </span>
+
       }
       @else if (searchTerm) {
+
         <span class="search-title">
           Search results for "{{ searchTerm }}"
         </span>
+
       }
       @else {
+
         <span class="category-title">
           Discover timeless pieces
         </span>
+
       }
 
     </div>
@@ -35,134 +38,45 @@
   </section>
 
 
-  <!-- =====================================================
-       FILTERS
-  ====================================================== -->
+  <!-- SORTING -->
+  <section class="sorting-section">
 
-  <section class="filters-section">
+    <div class="sorting-control">
 
-    <div class="filters-header">
+      <label for="sortOrder">Sort by</label>
 
-      <h2>Filter & Sort</h2>
-
-      <button
-        type="button"
-        class="clear-filters-button"
-        (click)="clearFilters()">
-        Clear Filters
-      </button>
-
-    </div>
-
-
-    <div class="filters-container">
-
-      <!-- MINIMUM PRICE -->
-
-      <div class="filter-group">
-
-        <label for="minPrice">
-          Minimum Price
-        </label>
-
-        <input
-          id="minPrice"
-          type="number"
-          min="0"
-          placeholder="₹ Min"
-          [(ngModel)]="minPrice"
-          (ngModelChange)="onPriceFilterChange()">
-
-      </div>
-
-
-      <!-- MAXIMUM PRICE -->
-
-      <div class="filter-group">
-
-        <label for="maxPrice">
-          Maximum Price
-        </label>
-
-        <input
-          id="maxPrice"
-          type="number"
-          min="0"
-          placeholder="₹ Max"
-          [(ngModel)]="maxPrice"
-          (ngModelChange)="onPriceFilterChange()">
-
-      </div>
-
-
-      <!-- SORT -->
-
-      <div class="filter-group">
-
-        <label for="sortOrder">
-          Sort by Price
-        </label>
-
-        <select
-          id="sortOrder"
-          [(ngModel)]="sortOrder"
-          (ngModelChange)="onSortChange()">
-
-          <option value="default">
-            Default
-          </option>
-
-          <option value="lowToHigh">
-            Price: Low to High
-          </option>
-
-          <option value="highToLow">
-            Price: High to Low
-          </option>
-
-        </select>
-
-      </div>
+      <select
+        id="sortOrder"
+        [(ngModel)]="sortOrder"
+        (ngModelChange)="onSortChange()"
+      >
+        <option value="default">Default</option>
+        <option value="lowToHigh">Price: Low to High</option>
+        <option value="highToLow">Price: High to Low</option>
+      </select>
 
     </div>
 
   </section>
 
 
-  <!-- =====================================================
-       PRODUCTS
-  ====================================================== -->
-
+  <!-- PRODUCTS -->
   <section class="products-content">
-
-    <!-- LOADING -->
 
     @if (loading$ | async) {
 
       <div class="loading-state">
-
         <p>Loading products...</p>
-
       </div>
 
     }
-
-    <!-- ERROR -->
-
     @else if (error$ | async) {
 
       <div class="error-state">
-
-        <p>
-          Something went wrong while loading products.
-        </p>
-
+        <p>Something went wrong while loading products.</p>
       </div>
 
     }
-
-    <!-- PRODUCTS -->
-
     @else {
 
       @if (paginatedProducts$ | async; as products) {
@@ -170,113 +84,61 @@
         @if (products.length === 0) {
 
           <div class="no-products">
-
             <p>ZELL COLLECTION</p>
-
             <h2>No products found</h2>
-
-            <span>
-              Try changing your filters or search.
-            </span>
-
-            <button
-              type="button"
-              class="clear-filters-button"
-              (click)="clearFilters()">
-              Clear Filters
-            </button>
-
+            <span>Try changing your search or category.</span>
           </div>
 
         }
-
         @else {
 
-          @if (
-            wishlistItems$ | async;
-            as wishlistItems
-          ) {
+          @if (wishlistItems$ | async; as wishlistItems) {
 
-            @if (
-              cartItems$ | async;
-              as cartItems
-            ) {
-
-              <!-- PRODUCT GRID -->
+            @if (cartItems$ | async; as cartItems) {
 
               <div class="products-grid">
 
-                @for (
-                  product of products;
-                  track product.id
-                ) {
+                @for (product of products; track product.id) {
 
                   <article
                     class="product-card"
-                    [routerLink]="[
-                      '/products',
-                      product.id
-                    ]">
+                    [routerLink]="['/products', product.id]"
+                  >
 
                     <!-- PRODUCT IMAGE -->
-
                     <div class="product-image">
 
-                      <img
-                        [src]="product.image"
-                        [alt]="product.name">
-
+                      <img [src]="product.image" [alt]="product.name">
 
                       <!-- WISHLIST -->
-
                       <button
                         type="button"
                         class="wishlist-button"
                         [class.active]="
-                          isInWishlist(
-                            product,
-                            wishlistItems
-                          )
+                          isLoggedIn &&
+                          isInWishlist(product, wishlistItems)
                         "
                         (click)="
                           $event.preventDefault();
                           $event.stopPropagation();
-                          toggleWishlist(
-                            product,
-                            wishlistItems
-                          )
+                          toggleWishlist(product, wishlistItems)
                         "
-                        [attr.aria-label]="
-                          isInWishlist(
-                            product,
-                            wishlistItems
-                          )
-                            ? 'Remove from wishlist'
-                            : 'Add to wishlist'
-                        ">
-
+                      >
                         @if (
-                          isInWishlist(
-                            product,
-                            wishlistItems
-                          )
+                          isLoggedIn &&
+                          isInWishlist(product, wishlistItems)
                         ) {
-
                           ♥
                         }
-
                         @else {
-
                           ♡
                         }
-
                       </button>
 
                     </div>
 
 
-                    <!-- PRODUCT DETAILS -->
-
+                    <!-- PRODUCT INFO -->
                     <div class="product-info">
 
                       <div class="product-top">
@@ -291,16 +153,11 @@
 
                       </div>
 
-
-                      <h2>
-                        {{ product.name }}
-                      </h2>
-
+                      <h2>{{ product.name }}</h2>
 
                       <p class="product-description">
                         {{ product.description }}
                       </p>
-
 
                       <div class="product-bottom">
 
@@ -308,71 +165,40 @@
                           ₹{{ product.price }}
                         </span>
 
-
-                        <!-- CART BUTTON -->
-
+                        <!-- Guest: button stays enabled so the toast can show -->
                         <button
                           type="button"
                           class="cart-button"
                           [disabled]="
                             product.stock <= 0 ||
-                            isInCart(
-                              product,
-                              cartItems
-                            )
+                            (isLoggedIn && isInCart(product, cartItems))
                           "
                           (click)="
                             $event.preventDefault();
                             $event.stopPropagation();
-                            addProductToCart(
-                              product,
-                              cartItems
-                            )
-                          ">
-
-                          @if (
-                            product.stock <= 0
-                          ) {
-
+                            addProductToCart(product, cartItems)
+                          "
+                        >
+                          @if (product.stock <= 0) {
                             Out of Stock
-
                           }
-
                           @else if (
-                            isInCart(
-                              product,
-                              cartItems
-                            )
+                            isLoggedIn && isInCart(product, cartItems)
                           ) {
-
                             Added to Cart
-
                           }
-
                           @else {
-
                             Add to Cart
-
                           }
-
                         </button>
 
                       </div>
 
-
                       <!-- LOW STOCK -->
-
-                      @if (
-                        product.stock > 0 &&
-                        product.stock <= 5
-                      ) {
+                      @if (product.stock > 0 && product.stock <= 5) {
 
                         <p class="stock-message">
-
-                          Only
-                          {{ product.stock }}
-                          left
-
+                          Only {{ product.stock }} left
                         </p>
 
                       }
@@ -386,33 +212,21 @@
               </div>
 
 
-              <!-- =================================================
-                   PAGINATION
-              ================================================== -->
-
-              @if (
-                totalPages$ | async;
-                as totalPages
-              ) {
+              <!-- PAGINATION -->
+              @if (totalPages$ | async; as totalPages) {
 
                 @if (totalPages > 1) {
 
                   <div class="pagination">
 
-                    <!-- PREVIOUS -->
-
                     <button
                       type="button"
                       class="pagination-button"
                       [disabled]="currentPage === 1"
-                      (click)="previousPage()">
-
+                      (click)="previousPage()"
+                    >
                       ← Previous
-
                     </button>
-
-
-                    <!-- PAGE NUMBERS -->
 
                     <div class="pagination-numbers">
 
@@ -424,32 +238,23 @@
                         <button
                           type="button"
                           class="pagination-number"
-                          [class.active]="
-                            currentPage === page
-                          "
-                          (click)="goToPage(page)">
-
+                          [class.active]="currentPage === page"
+                          (click)="goToPage(page)"
+                        >
                           {{ page }}
-
                         </button>
 
                       }
 
                     </div>
 
-
-                    <!-- NEXT -->
-
                     <button
                       type="button"
                       class="pagination-button"
-                      [disabled]="
-                        currentPage === totalPages
-                      "
-                      (click)="nextPage(totalPages)">
-
+                      [disabled]="currentPage === totalPages"
+                      (click)="nextPage(totalPages)"
+                    >
                       Next →
-
                     </button>
 
                   </div>
@@ -471,5 +276,36 @@
   </section>
 
 </div>
+
+
+<!-- CART LIMIT POPUP -->
+@if (cartLimitMessage) {
+
+  <div class="cart-limit-overlay" (click)="closeCartLimitMessage()">
+
+    <div class="cart-limit-card" (click)="$event.stopPropagation()">
+
+      <div class="cart-limit-icon">!</div>
+
+      <p class="cart-limit-brand">ZELL COLLECTION</p>
+
+      <h2>Cart Limit Reached</h2>
+
+      <p class="cart-limit-text">{{ cartLimitText }}</p>
+
+      <button
+        type="button"
+        class="cart-limit-close"
+        (click)="closeCartLimitMessage()"
+      >
+        Okay
+      </button>
+
+    </div>
+
+  </div>
+
+}
+
 
 <app-footer></app-footer>

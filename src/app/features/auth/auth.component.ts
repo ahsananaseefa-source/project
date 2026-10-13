@@ -1,13 +1,28 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  inject
+} from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+
+import {
+  ActivatedRoute,
+  Router
+} from '@angular/router';
+
 import { Store } from '@ngrx/store';
+
 import emailjs from '@emailjs/browser';
 
 import { UserService } from '../../core/services/user.service';
 import { CartService } from '../../core/services/cart.service';
+import { ToastService } from '../../core/services/toast.service';
+
 import { loadCart } from '../../store/cart/cart.actions';
+
 import { User } from '../../core/models/user.models';
+
 
 @Component({
   selector: 'app-auth',
@@ -23,6 +38,8 @@ export class AuthComponent implements OnDestroy {
   private userService = inject(UserService);
   private cartService = inject(CartService);
   private store = inject(Store);
+  private toastService = inject(ToastService);
+
 
   // =========================================================
   // EMAILJS CONFIG
@@ -32,16 +49,27 @@ export class AuthComponent implements OnDestroy {
   private readonly EMAILJS_TEMPLATE_ID = 'template_cdey1ve';
   private readonly EMAILJS_PUBLIC_KEY = 'SJmmkU0Oe21BQ0hER';
 
-  private readonly OTP_VALID_MS = 5 * 60 * 1000;
-  private readonly RESEND_SECONDS = 30;
+
+  // =========================================================
+  // OTP CONFIGURATION
+  // =========================================================
+
+  // OTP valid only for 1 minute
+  private readonly OTP_VALID_MS = 1 * 60 * 1000;
+
+  // Maximum wrong OTP attempts
   private readonly MAX_OTP_ATTEMPTS = 5;
+
 
   // =========================================================
   // AUTH
   // =========================================================
 
   isLogin = true;
+
   showPassword = false;
+  showConfirmPassword = false;
+
 
   // =========================================================
   // FORM
@@ -51,36 +79,107 @@ export class AuthComponent implements OnDestroy {
   email = '';
   phone = '';
   password = '';
+  confirmPassword = '';
+
 
   // =========================================================
-  // MESSAGES
+  // FIELD VALIDATION ERRORS
+  // =========================================================
+
+  nameError = '';
+  phoneError = '';
+  emailError = '';
+  passwordError = '';
+  confirmPasswordError = '';
+
+
+  // =========================================================
+  // GENERAL MESSAGES
   // =========================================================
 
   errorMessage = '';
-  successMessage = '';
+
+
+  // =========================================================
+  // SUCCESS MESSAGE
+  // Disappears automatically after 1 second
+  // =========================================================
+
+  private readonly SUCCESS_MESSAGE_DURATION = 1000;
+
+  private successTimer:
+    ReturnType<typeof setTimeout> | null = null;
+
+  private _successMessage = '';
+
+  get successMessage(): string {
+
+    return this._successMessage;
+
+  }
+
+  set successMessage(value: string) {
+
+    this._successMessage = value;
+
+    // Stop the old timer
+    if (this.successTimer) {
+
+      clearTimeout(this.successTimer);
+
+      this.successTimer = null;
+
+    }
+
+    // Start a new 1 second timer only for a real message
+    if (value) {
+
+      this.successTimer = setTimeout(() => {
+
+        this._successMessage = '';
+
+        this.successTimer = null;
+
+      }, this.SUCCESS_MESSAGE_DURATION);
+
+    }
+
+  }
+
 
   // =========================================================
   // OTP
-  // OTP is ONLY used for registration
   // =========================================================
 
   otp = '';
   generatedOtp = '';
+
   otpSent = false;
   otpVerified = false;
+
+  // Controls the OTP popup (sticky: user cannot close it)
+  otpModalOpen = false;
+
   otpExpiryTime = 0;
 
-  resendAvailable = true;
-  resendSeconds = 0;
+  otpRemainingSeconds = 0;
 
   otpSending = false;
   otpVerifying = false;
 
-  private otpEmail = '';
   private otpAttempts = 0;
 
-  private resendInterval: ReturnType<typeof setInterval> | null = null;
-  private verifyTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // =========================================================
+  // TIMER
+  // =========================================================
+
+  private otpInterval:
+    ReturnType<typeof setInterval> | null = null;
+
+  private verifyTimeout:
+    ReturnType<typeof setTimeout> | null = null;
+
 
   // =========================================================
   // CONSTRUCTOR
@@ -96,39 +195,78 @@ export class AuthComponent implements OnDestroy {
 
       if (params['mode'] === 'register') {
         this.isLogin = false;
+      } else {
+        this.isLogin = true;
       }
 
     });
   }
+
 
   // =========================================================
   // DESTROY
   // =========================================================
 
   ngOnDestroy(): void {
+
     this.clearTimers();
+
   }
 
+
   // =========================================================
-  // HELPERS
+  // NORMALIZED EMAIL
   // =========================================================
 
   private get normalizedEmail(): string {
+
     return this.email.trim().toLowerCase();
+
   }
+
+
+  // =========================================================
+  // CLEAR TIMERS
+  // =========================================================
 
   private clearTimers(): void {
 
-    if (this.resendInterval) {
-      clearInterval(this.resendInterval);
-      this.resendInterval = null;
+    if (this.otpInterval) {
+
+      clearInterval(this.otpInterval);
+
+      this.otpInterval = null;
+
     }
 
     if (this.verifyTimeout) {
+
       clearTimeout(this.verifyTimeout);
+
       this.verifyTimeout = null;
+
     }
+
+    // Clears the success message AND its timer
+    this.successMessage = '';
+
   }
+
+
+  // =========================================================
+  // CLEAR FIELD ERRORS
+  // =========================================================
+
+  private clearFieldErrors(): void {
+
+    this.nameError = '';
+    this.phoneError = '';
+    this.emailError = '';
+    this.passwordError = '';
+    this.confirmPasswordError = '';
+
+  }
+
 
   // =========================================================
   // SWITCH LOGIN / REGISTER
@@ -142,71 +280,368 @@ export class AuthComponent implements OnDestroy {
     this.email = '';
     this.phone = '';
     this.password = '';
+    this.confirmPassword = '';
+
+    this.clearFieldErrors();
 
     this.errorMessage = '';
     this.successMessage = '';
 
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+
     this.resetOtp();
+
   }
 
+
   // =========================================================
-  // VALIDATIONS
+  // VALIDATE NAME
   // =========================================================
 
   private validateName(): boolean {
 
-    if (!/^[A-Za-z ]{3,}$/.test(this.name.trim())) {
+    const trimmedName = this.name.trim();
 
-      this.errorMessage =
-        'Please enter a valid name with at least 3 letters.';
+    // Allows names such as:
+    // Ahsana
+    // Ahsana Naseefa
+    // Mary Jane Smith
+
+    const nameRegex = /^[A-Za-z]+(?:\s+[A-Za-z]+)*$/;
+
+    if (!trimmedName) {
+
+      this.nameError = 'Full name is required.';
 
       return false;
+
     }
 
+    if (trimmedName.length < 3) {
+
+      this.nameError = 'Full name must contain at least 3 letters.';
+
+      return false;
+
+    }
+
+    if (!nameRegex.test(trimmedName)) {
+
+      this.nameError = 'Use alphabets and spaces only.';
+
+      return false;
+
+    }
+
+    this.nameError = '';
+
     return true;
+
   }
+
+
+  // =========================================================
+  // WEAK / FAKE PHONE NUMBER CHECK
+  // =========================================================
+
+  private isWeakPhoneNumber(phone: string): boolean {
+
+    // 1. Same digit repeated in the whole number
+    // Example: 9999999999
+
+    if (/^(\d)\1+$/.test(phone)) {
+      return true;
+    }
+
+    // 2. Same digit 6 or more times in a row
+    // Example: 9000000000, 9111111111, 9888888123
+
+    if (/(\d)\1{5,}/.test(phone)) {
+      return true;
+    }
+
+    // 3. Fewer than 4 different digits in the number
+    // Example: 9009009009, 9090909090
+
+    if (new Set(phone.split('')).size < 4) {
+      return true;
+    }
+
+    // 4. A short block repeated again and again
+    // Example: 9898989898, 9876598765
+
+    if (/^(\d{2,5})\1+$/.test(phone)) {
+      return true;
+    }
+
+    // 5. Long ascending or descending run
+    // Example: 9123456789, 9876543210
+
+    let ascending = 1;
+    let descending = 1;
+
+    for (let i = 1; i < phone.length; i++) {
+
+      const diff = Number(phone[i]) - Number(phone[i - 1]);
+
+      ascending = diff === 1 ? ascending + 1 : 1;
+
+      descending = diff === -1 ? descending + 1 : 1;
+
+      if (ascending >= 6 || descending >= 6) {
+        return true;
+      }
+
+    }
+
+    return false;
+
+  }
+
+
+  // =========================================================
+  // VALIDATE PHONE
+  // =========================================================
 
   private validatePhone(): boolean {
 
-    if (!/^[0-9]{10}$/.test(this.phone.trim())) {
+    const trimmedPhone = this.phone.trim();
 
-      this.errorMessage =
-        'Please enter a valid 10-digit phone number.';
+    if (!trimmedPhone) {
+
+      this.phoneError = 'Phone number is required.';
 
       return false;
+
     }
 
+    // Must contain exactly 10 digits
+    // and start with 6, 7, 8 or 9
+
+    const phoneRegex = /^[6-9][0-9]{9}$/;
+
+    if (!phoneRegex.test(trimmedPhone)) {
+
+      this.phoneError = 'Enter a valid 10-digit mobile number.';
+
+      return false;
+
+    }
+
+    // Reject fake / repeated / sequential numbers
+
+    if (this.isWeakPhoneNumber(trimmedPhone)) {
+
+      this.phoneError = 'Enter a valid mobile number.';
+
+      return false;
+
+    }
+
+    this.phoneError = '';
+
     return true;
+
   }
+
+
+  // =========================================================
+  // VALIDATE EMAIL
+  // =========================================================
 
   private validateEmail(): boolean {
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(this.email.trim())) {
+    const trimmedEmail = this.email.trim();
 
-      this.errorMessage =
-        'Please enter a valid email address.';
+    const emailRegex =
+      /^[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*@[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*\.[A-Za-z]{2,}$/;
+
+    if (!trimmedEmail) {
+
+      this.emailError = 'Email address is required.';
 
       return false;
+
     }
 
+    if (!emailRegex.test(trimmedEmail)) {
+
+      this.emailError = 'Enter a valid email address.';
+
+      return false;
+
+    }
+
+    this.emailError = '';
+
     return true;
+
   }
+
+
+  // =========================================================
+  // VALIDATE PASSWORD (REGISTER ONLY)
+  // Full password rules
+  // =========================================================
 
   private validatePassword(): boolean {
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-    if (!passwordRegex.test(this.password)) {
+    if (!this.password) {
 
-      this.errorMessage =
-        'Password must contain 8 characters, uppercase, lowercase, number and special character.';
+      this.passwordError = 'Password is required.';
 
       return false;
+
     }
 
+    if (!passwordRegex.test(this.password)) {
+
+      this.passwordError =
+        'Password must contain at least 8 characters, uppercase, lowercase, number and special character.';
+
+      return false;
+
+    }
+
+    this.passwordError = '';
+
     return true;
+
   }
+
+
+  // =========================================================
+  // VALIDATE LOGIN PASSWORD (LOGIN ONLY)
+  // Only checks that the password is not empty.
+  // No rules message is shown in login.
+  // =========================================================
+
+  private validateLoginPassword(): boolean {
+
+    if (!this.password) {
+
+      this.passwordError = 'Password is required.';
+
+      return false;
+
+    }
+
+    this.passwordError = '';
+
+    return true;
+
+  }
+
+
+  // =========================================================
+  // VALIDATE CONFIRM PASSWORD
+  // =========================================================
+
+  private validateConfirmPassword(): boolean {
+
+    if (!this.confirmPassword) {
+
+      this.confirmPasswordError = 'Please confirm your password.';
+
+      return false;
+
+    }
+
+    if (this.password !== this.confirmPassword) {
+
+      this.confirmPasswordError = 'Passwords do not match.';
+
+      return false;
+
+    }
+
+    this.confirmPasswordError = '';
+
+    return true;
+
+  }
+
+
+  // =========================================================
+  // FIELD INPUT HANDLERS
+  // =========================================================
+
+  onNameInput(): void {
+
+    this.nameError = '';
+
+    if (this.name.trim()) {
+      this.validateName();
+    }
+
+  }
+
+  onPhoneInput(): void {
+
+    // Only numbers
+    this.phone = this.phone.replace(/\D/g, '');
+
+    // Maximum 10 digits
+    this.phone = this.phone.slice(0, 10);
+
+    this.phoneError = '';
+
+    if (this.phone.trim()) {
+      this.validatePhone();
+    }
+
+  }
+
+  onEmailInput(): void {
+
+    this.emailError = '';
+
+    // Login: a changed email makes the old
+    // "Incorrect password" message outdated
+    if (this.isLogin) {
+      this.passwordError = '';
+    }
+
+    if (this.email.trim()) {
+      this.validateEmail();
+    }
+
+  }
+
+  onPasswordInput(): void {
+
+    this.passwordError = '';
+
+    // LOGIN: no validation message while typing
+    if (this.isLogin) {
+      return;
+    }
+
+    // REGISTER: full password rules
+    if (this.password) {
+      this.validatePassword();
+    }
+
+    if (this.confirmPassword) {
+      this.validateConfirmPassword();
+    }
+
+  }
+
+  onConfirmPasswordInput(): void {
+
+    this.confirmPasswordError = '';
+
+    if (this.confirmPassword) {
+      this.validateConfirmPassword();
+    }
+
+  }
+
 
   // =========================================================
   // SUBMIT FORM
@@ -217,81 +652,86 @@ export class AuthComponent implements OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
+
     // =======================================================
     // LOGIN
-    // OTP IS NOT USED FOR LOGIN
     // =======================================================
 
-   // LOGIN
-if (this.isLogin) {
+    if (this.isLogin) {
 
-  if (!this.validateEmail()) return;
+      const emailOk = this.validateEmail();
+      const passwordOk = this.validateLoginPassword();
 
-  if (!this.validatePassword()) return;
-
-  this.userService
-    .login(
-      this.normalizedEmail,
-      this.password
-    )
-    .subscribe({
-
-      next: (users) => {
-
-        if (!users || users.length === 0) {
-
-          this.errorMessage =
-            'Incorrect email or password. Please try again.';
-
-          return;
-        }
-
-        const user = users[0];
-
-        this.setLoggedInUser(user);
-
-        this.mergeGuestCartAndNavigate();
-      },
-
-      error: (error) => {
-
-        console.error(
-          'Login error:',
-          error
-        );
-
-        this.errorMessage =
-          'Unable to login. Please try again.';
+      if (!emailOk || !passwordOk) {
+        return;
       }
 
-    });
+      this.userService
+        .login(this.normalizedEmail, this.password)
+        .subscribe({
 
-  return;
-}
+          next: (users) => {
+
+            // Wrong email or wrong password
+            if (!users || users.length === 0) {
+
+              this.showLoginFailure();
+
+              return;
+
+            }
+
+            const user = users[0];
+
+            // Save logged-in user
+            this.setLoggedInUser(user);
+
+            // Login toast
+            this.toastService.success('Welcome back to ZELL.');
+
+            // Merge guest cart
+            this.mergeGuestCartAndNavigate();
+
+          },
+
+          error: (error) => {
+
+            console.error('Login error:', error);
+
+            this.errorMessage = 'Unable to login. Please try again.';
+
+          }
+
+        });
+
+      return;
+
+    }
+
 
     // =======================================================
-    // REGISTER
-    // OTP IS REQUIRED FOR REGISTER
+    // REGISTER VALIDATIONS
     // =======================================================
 
-    if (!this.validateName()) {
+    this.validateName();
+    this.validatePhone();
+    this.validateEmail();
+    this.validatePassword();
+    this.validateConfirmPassword();
+
+    if (
+      this.nameError ||
+      this.phoneError ||
+      this.emailError ||
+      this.passwordError ||
+      this.confirmPasswordError
+    ) {
       return;
     }
 
-    if (!this.validatePhone()) {
-      return;
-    }
-
-    if (!this.validateEmail()) {
-      return;
-    }
-
-    if (!this.validatePassword()) {
-      return;
-    }
 
     // =======================================================
-    // IF OTP IS ALREADY VERIFIED
+    // IF OTP ALREADY VERIFIED
     // =======================================================
 
     if (this.otpVerified) {
@@ -299,42 +739,89 @@ if (this.isLogin) {
       this.register();
 
       return;
+
     }
 
+
     // =======================================================
-    // CHECK IF EMAIL ALREADY EXISTS
+    // CHECK EMAIL ALREADY EXISTS
     // =======================================================
 
-    this.userService.getUserByEmail(this.normalizedEmail).subscribe({
+    this.userService
+      .getUserByEmail(this.normalizedEmail)
+      .subscribe({
 
-      next: (users) => {
+        next: (users) => {
 
-        console.log('Existing users:', users);
+          if (users && users.length > 0) {
 
-        if (users && users.length > 0) {
+            this.emailError =
+              'An account already exists with this email.';
+
+            return;
+
+          }
+
+          // Create Account button sends OTP
+          this.sendOtp();
+
+        },
+
+        error: (error) => {
+
+          console.error('Error checking email:', error);
 
           this.errorMessage =
-            'An account already exists with this email. Please login.';
+            'Unable to check email. Please try again.';
 
-          return;
         }
 
-        // No existing account
-        // Send OTP for registration
+      });
 
-        this.sendOtp();
-      },
-
-      error: (error) => {
-
-        console.error('Error checking email:', error);
-
-        this.errorMessage =
-          'Unable to check email. Please try again.';
-      }
-
-    });
   }
+
+
+  // =========================================================
+  // LOGIN FAILURE
+  // If the email exists, the password is wrong.
+  // If the email does not exist, tell that instead.
+  // =========================================================
+
+  private showLoginFailure(): void {
+
+    this.userService
+      .getUserByEmail(this.normalizedEmail)
+      .subscribe({
+
+        next: (users) => {
+
+          if (users && users.length > 0) {
+
+            // Email is correct -> password is wrong
+            this.passwordError = 'Incorrect password.';
+
+          } else {
+
+            // No account with this email
+            this.emailError = 'No account found with this email.';
+
+          }
+
+        },
+
+        error: (error) => {
+
+          console.error('Login check error:', error);
+
+          // Fallback: still show it near the password field
+          this.passwordError = 'Incorrect password.';
+
+        }
+
+      });
+
+  }
+
 
   // =========================================================
   // GENERATE OTP
@@ -347,14 +834,15 @@ if (this.isLogin) {
     crypto.getRandomValues(array);
 
     return (100000 + (array[0] % 900000)).toString();
+
   }
+
 
   // =========================================================
   // SEND OTP
-  // OTP ONLY FOR REGISTER
   // =========================================================
 
-  sendOtp(): void {
+  private sendOtp(): void {
 
     if (this.otpSending) {
       return;
@@ -373,41 +861,25 @@ if (this.isLogin) {
 
     const toEmail = this.normalizedEmail;
 
-    console.log('Entered email:', this.email);
-    console.log('Normalized email:', this.normalizedEmail);
-    console.log('EmailJS recipient:', toEmail);
-
     const templateParams = {
-
       name: this.name.trim(),
-
       to_name: this.name.trim(),
-
       email: toEmail,
-
       otp: otpValue,
-
-      time: '5 minutes'
+      time: '1 minute'
     };
 
-    console.log('Template params:', templateParams);
-
-    emailjs.send(
-      this.EMAILJS_SERVICE_ID,
-      this.EMAILJS_TEMPLATE_ID,
-      templateParams
-    )
+    emailjs
+      .send(
+        this.EMAILJS_SERVICE_ID,
+        this.EMAILJS_TEMPLATE_ID,
+        templateParams
+      )
 
       .then(() => {
 
-        console.log('OTP email sent successfully.');
-
+        // Save OTP
         this.generatedOtp = otpValue;
-
-        this.otpExpiryTime =
-          Date.now() + this.OTP_VALID_MS;
-
-        this.otpEmail = toEmail;
 
         this.otpAttempts = 0;
 
@@ -419,12 +891,15 @@ if (this.isLogin) {
 
         this.otpSending = false;
 
-        this.successMessage =
-          'OTP sent to ' +
-          toEmail +
-          '. Please check your inbox (and spam folder).';
+        // Open OTP popup (stays open until OTP is verified)
+        this.otpModalOpen = true;
 
-        this.startResendTimer();
+        // Start 1-minute OTP timer
+        this.startOtpTimer();
+
+        // Disappears after 1 second
+        this.successMessage = 'OTP sent to ' + toEmail + '.';
+
       })
 
       .catch(error => {
@@ -439,17 +914,107 @@ if (this.isLogin) {
 
         this.generatedOtp = '';
 
-        const detail =
-          error?.text
-            ? ` (${error.text})`
-            : '';
+        // NOTE: the popup is NOT closed here.
+        // If it is open, the error is shown inside it.
+
+        const detail = error?.text ? ` (${error.text})` : '';
 
         this.errorMessage =
-          'Unable to send OTP' +
-          detail +
-          '. Please check your email address and try again.';
+          'Unable to send OTP' + detail + '. Please try again.';
+
       });
+
   }
+
+
+  // =========================================================
+  // START OTP TIMER
+  // =========================================================
+
+  private startOtpTimer(): void {
+
+    if (this.otpInterval) {
+
+      clearInterval(this.otpInterval);
+
+      this.otpInterval = null;
+
+    }
+
+    this.otpExpiryTime = Date.now() + this.OTP_VALID_MS;
+
+    this.updateOtpTimer();
+
+    this.otpInterval = setInterval(() => {
+
+      this.updateOtpTimer();
+
+    }, 1000);
+
+  }
+
+
+  // =========================================================
+  // UPDATE OTP TIMER
+  // =========================================================
+
+  private updateOtpTimer(): void {
+
+    const remainingMs = this.otpExpiryTime - Date.now();
+
+    if (remainingMs <= 0) {
+
+      this.otpRemainingSeconds = 0;
+
+      // OTP is no longer valid, but the popup STAYS open
+      this.generatedOtp = '';
+
+      if (this.otpInterval) {
+
+        clearInterval(this.otpInterval);
+
+        this.otpInterval = null;
+
+      }
+
+      this.errorMessage =
+        'OTP has expired. Please click Resend OTP to get a new one.';
+
+      return;
+
+    }
+
+    this.otpRemainingSeconds = Math.ceil(remainingMs / 1000);
+
+  }
+
+
+  // =========================================================
+  // OTP TIMER DISPLAY
+  // =========================================================
+
+  get otpTimerDisplay(): string {
+
+    const minutes = Math.floor(this.otpRemainingSeconds / 60);
+
+    const seconds = this.otpRemainingSeconds % 60;
+
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+  }
+
+
+  // =========================================================
+  // CAN RESEND
+  // Resend is allowed only after the timer has finished
+  // =========================================================
+
+  get canResend(): boolean {
+
+    return this.otpRemainingSeconds <= 0 && !this.otpSending;
+
+  }
+
 
   // =========================================================
   // VERIFY OTP
@@ -465,44 +1030,42 @@ if (this.isLogin) {
     if (!this.generatedOtp) {
 
       this.errorMessage =
-        'Please request an OTP first.';
+        'OTP has expired. Please click Resend OTP to get a new one.';
 
       return;
+
     }
 
     if (!enteredOtp) {
 
-      this.errorMessage =
-        'Please enter the OTP sent to your email.';
+      this.errorMessage = 'Please enter the OTP.';
 
       return;
+
     }
 
     if (!/^\d{6}$/.test(enteredOtp)) {
 
-      this.errorMessage =
-        'Please enter a valid 6-digit OTP.';
+      this.errorMessage = 'Please enter a valid 6-digit OTP.';
 
       return;
+
     }
 
-    // =======================================================
-    // CHECK EXPIRY
-    // =======================================================
+    // Check expiry
 
-    if (Date.now() > this.otpExpiryTime) {
+    if (Date.now() >= this.otpExpiryTime) {
+
+      this.expireOtp();
 
       this.errorMessage =
-        'OTP has expired. Please request a new OTP.';
-
-      this.resetOtpOnly();
+        'OTP has expired. Please click Resend OTP to get a new one.';
 
       return;
+
     }
 
-    // =======================================================
-    // CHECK WRONG OTP
-    // =======================================================
+    // Check wrong OTP
 
     if (enteredOtp !== this.generatedOtp) {
 
@@ -510,19 +1073,21 @@ if (this.isLogin) {
 
       if (this.otpAttempts >= this.MAX_OTP_ATTEMPTS) {
 
-        this.errorMessage =
-          'Too many wrong attempts. Please request a new OTP.';
+        this.expireOtp();
 
-        this.resetOtpOnly();
+        this.errorMessage =
+          'Too many wrong attempts. Please click Resend OTP to get a new one.';
 
         return;
+
       }
 
-      this.errorMessage =
-        'Invalid OTP. Please check the OTP and try again.';
+      this.errorMessage = 'Invalid OTP. Please check and try again.';
 
       return;
+
     }
+
 
     // =======================================================
     // OTP VERIFIED
@@ -532,71 +1097,78 @@ if (this.isLogin) {
 
     this.otpVerifying = true;
 
-    this.successMessage =
-      'OTP verified successfully.';
+    // Disappears after 1 second
+    this.successMessage = 'OTP verified successfully.';
 
+    // Stop OTP timer
+
+    if (this.otpInterval) {
+
+      clearInterval(this.otpInterval);
+
+      this.otpInterval = null;
+
+    }
+
+    // The popup closes ONLY here, after successful verification
     this.verifyTimeout = setTimeout(() => {
 
       this.otpVerifying = false;
 
-      // OTP is only used for registration
+      this.otpModalOpen = false;
+
       this.register();
 
     }, 400);
+
   }
+
+
+  // =========================================================
+  // EXPIRE OTP
+  // Popup stays open, Resend becomes clickable
+  // =========================================================
+
+  private expireOtp(): void {
+
+    this.generatedOtp = '';
+
+    this.otp = '';
+
+    this.otpVerified = false;
+
+    this.otpRemainingSeconds = 0;
+
+    this.otpExpiryTime = 0;
+
+    if (this.otpInterval) {
+
+      clearInterval(this.otpInterval);
+
+      this.otpInterval = null;
+
+    }
+
+  }
+
 
   // =========================================================
   // RESEND OTP
+  // Allowed only after the timer is finished
   // =========================================================
 
   resendOtp(): void {
 
-    if (!this.resendAvailable || this.otpSending) {
+    if (!this.canResend) {
       return;
     }
 
     this.otpVerified = false;
 
     this.sendOtp();
+
   }
 
-  // =========================================================
-  // RESEND TIMER
-  // =========================================================
-
-  private startResendTimer(): void {
-
-    if (this.resendInterval) {
-
-      clearInterval(this.resendInterval);
-    }
-
-    this.resendAvailable = false;
-
-    this.resendSeconds =
-      this.RESEND_SECONDS;
-
-    this.resendInterval =
-      setInterval(() => {
-
-        this.resendSeconds--;
-
-        if (this.resendSeconds <= 0) {
-
-          this.resendAvailable = true;
-
-          this.resendSeconds = 0;
-
-          if (this.resendInterval) {
-
-            clearInterval(this.resendInterval);
-
-            this.resendInterval = null;
-          }
-        }
-
-      }, 1000);
-  }
 
   // =========================================================
   // RESET OTP
@@ -610,172 +1182,117 @@ if (this.isLogin) {
 
     this.generatedOtp = '';
 
-    this.otpEmail = '';
-
     this.otpAttempts = 0;
 
     this.otpSent = false;
 
     this.otpVerified = false;
 
+    this.otpModalOpen = false;
+
     this.otpExpiryTime = 0;
 
-    this.resendAvailable = true;
-
-    this.resendSeconds = 0;
+    this.otpRemainingSeconds = 0;
 
     this.otpSending = false;
 
     this.otpVerifying = false;
+
   }
 
-  // =========================================================
-  // RESET OTP ONLY
-  // =========================================================
-
-  private resetOtpOnly(): void {
-
-    this.otp = '';
-
-    this.generatedOtp = '';
-
-    this.otpAttempts = 0;
-
-    this.otpSent = false;
-
-    this.otpVerified = false;
-
-    this.otpExpiryTime = 0;
-
-    this.otpVerifying = false;
-  }
-
-  // =========================================================
-  // LOGIN
-  // =========================================================
-
-  private login(): void {
-
-  this.userService
-    .login(
-      this.normalizedEmail,
-      this.password
-    )
-    .subscribe({
-
-      next: (users) => {
-
-        if (!users || users.length === 0) {
-
-          this.errorMessage =
-            'Login failed. Please try again.';
-
-          this.resetOtp();
-
-          return;
-        }
-
-        const user = users[0];
-
-        this.setLoggedInUser(user);
-
-        this.mergeGuestCartAndNavigate();
-      },
-
-      error: (error) => {
-
-        console.error(
-          'Login error:',
-          error
-        );
-
-        this.errorMessage =
-          'Unable to login. Please try again.';
-
-        this.resetOtp();
-      }
-
-    });
-}
 
   // =========================================================
   // REGISTER
+  // After success, the LOGIN form is shown directly
   // =========================================================
 
- private register(): void {
+  private register(): void {
 
-  const email =
-    this.normalizedEmail;
+    const email = this.normalizedEmail;
 
-  const newUser: User = {
+    const newUser: User = {
+      name: this.name.trim(),
+      email: email,
+      phone: this.phone.trim(),
+      password: this.password
+    };
 
-    name:
-      this.name.trim(),
+    this.userService
+      .register(newUser)
+      .subscribe({
 
-    email:
-      email,
+        next: () => {
 
-    phone:
-      this.phone.trim(),
+          // IMPORTANT:
+          // Do NOT automatically log in
+          // after registration.
 
-    password:
-      this.password
+          this.toastService.success(
+            'Account created successfully. Please login.'
+          );
 
-  };
+          // Clear registration data
 
-  this.userService
-    .register(newUser)
-    .subscribe({
+          this.name = '';
+          this.email = '';
+          this.phone = '';
+          this.password = '';
+          this.confirmPassword = '';
 
-      next: (registeredUser) => {
+          this.showPassword = false;
+          this.showConfirmPassword = false;
 
-        this.setLoggedInUser(
-          registeredUser
-        );
+          this.errorMessage = '';
 
-        this.mergeGuestCartAndNavigate();
-      },
+          this.clearFieldErrors();
 
-      error: (error) => {
+          this.resetOtp();
 
-        console.error(
-          'Registration error:',
-          error
-        );
+          // Show the LOGIN form directly.
+          // Works even if the URL does not change.
+          this.isLogin = true;
 
-        this.errorMessage =
-          'Registration failed. Please try again.';
-      }
+          // Update the URL to login mode as well
+          this.router.navigate(
+            ['/auth'],
+            {
+              queryParams: {
+                mode: 'login'
+              },
+              replaceUrl: true
+            }
+          );
 
-    });
-}
+        },
+
+        error: (error) => {
+
+          console.error('Registration error:', error);
+
+          this.errorMessage =
+            'Registration failed. Please try again.';
+
+        }
+
+      });
+
+  }
+
 
   // =========================================================
   // SAVE LOGIN DETAILS
   // =========================================================
 
- private setLoggedInUser(user: User): void {
+  private setLoggedInUser(user: User): void {
 
-  console.log(
-    'Logged in user:',
-    user
-  );
+    localStorage.setItem('user', JSON.stringify(user));
 
-  localStorage.setItem(
-    'user',
-    JSON.stringify(user)
-  );
+    localStorage.setItem('userId', String(user.id));
 
-  localStorage.setItem(
-    'userId',
-    String(user.id)
-  );
+    localStorage.setItem('token', 'logged-in');
 
-  localStorage.setItem(
-    'token',
-    'logged-in'
-  );
-}
+  }
+
 
   // =========================================================
   // MERGE GUEST CART
@@ -783,14 +1300,14 @@ if (this.isLogin) {
 
   private mergeGuestCartAndNavigate(): void {
 
-    const userId =
-      localStorage.getItem('userId');
+    const userId = localStorage.getItem('userId');
 
     if (!userId) {
 
       this.router.navigate(['/home']);
 
       return;
+
     }
 
     this.cartService
@@ -802,22 +1319,23 @@ if (this.isLogin) {
           this.store.dispatch(loadCart());
 
           this.router.navigate(['/home']);
+
         },
 
         error: error => {
 
-          console.error(
-            'Guest cart merge error:',
-            error
-          );
+          console.error('Guest cart merge error:', error);
 
           this.store.dispatch(loadCart());
 
           this.router.navigate(['/home']);
+
         }
 
       });
+
   }
+
 
   // =========================================================
   // PASSWORD VISIBILITY
@@ -825,8 +1343,19 @@ if (this.isLogin) {
 
   togglePassword(): void {
 
-    this.showPassword =
-      !this.showPassword;
+    this.showPassword = !this.showPassword;
+
+  }
+
+
+  // =========================================================
+  // CONFIRM PASSWORD VISIBILITY
+  // =========================================================
+
+  toggleConfirmPassword(): void {
+
+    this.showConfirmPassword = !this.showConfirmPassword;
+
   }
 
 }

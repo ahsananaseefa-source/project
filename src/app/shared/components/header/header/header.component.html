@@ -9,7 +9,8 @@
     type="button"
     class="mobile-menu-button"
     aria-label="Open menu"
-    (click)="toggleMobileMenu()">
+    (click)="toggleMobileMenu()"
+  >
 
     <span></span>
     <span></span>
@@ -27,7 +28,8 @@
 
     <a
       routerLink="/home"
-      (click)="closeAllMenus()">
+      (click)="closeAllMenus()"
+    >
 
       ZELL
 
@@ -48,7 +50,8 @@
 
     <a
       routerLink="/home"
-      (click)="closeAllMenus()">
+      (click)="closeAllMenus()"
+    >
 
       Home
 
@@ -59,7 +62,8 @@
 
     <a
       routerLink="/products"
-      (click)="closeAllMenus()">
+      (click)="closeAllMenus()"
+    >
 
       Shop
 
@@ -75,7 +79,8 @@
       <button
         type="button"
         class="category-button"
-        (click)="toggleCategoryMenu()">
+        (click)="toggleCategoryMenu()"
+      >
 
         <span>
           Category
@@ -83,7 +88,8 @@
 
         <span
           class="category-arrow"
-          [class.open]="showCategoryMenu">
+          [class.open]="showCategoryMenu"
+        >
 
           ▾
 
@@ -104,7 +110,8 @@
             <button
               type="button"
               class="category-menu-item"
-              (click)="selectCategory(category)">
+              (click)="selectCategory(category)"
+            >
 
               {{ category }}
 
@@ -137,25 +144,29 @@
         #searchInput
         type="text"
         placeholder="Search"
-        (keyup.enter)="searchProduct(searchInput.value)">
+        (keyup.enter)="searchProduct(searchInput.value)"
+      >
 
 
       <button
         type="button"
         class="search-icon"
         aria-label="Search"
-        (click)="searchProduct(searchInput.value)">
+        (click)="searchProduct(searchInput.value)"
+      >
 
         <svg viewBox="0 0 24 24">
 
           <circle
             cx="11"
             cy="11"
-            r="6">
+            r="6"
+          >
           </circle>
 
           <path
-            d="M16 16L21 21">
+            d="M16 16L21 21"
+          >
           </path>
 
         </svg>
@@ -173,7 +184,8 @@
     <a
       routerLink="/wishlist"
       class="header-icon"
-      aria-label="Wishlist">
+      aria-label="Wishlist"
+    >
 
       <svg viewBox="0 0 24 24">
 
@@ -184,7 +196,8 @@
              C3.2 6.1 5 4.2 7.4 4.2
              C9 4.2 10.5 5.1 12 6.5
              C13.5 5.1 15 4.2 16.6 4.2
-             C19 4.2 20.8 6.1 20.8 8.7Z">
+             C19 4.2 20.8 6.1 20.8 8.7Z"
+        >
         </path>
 
       </svg>
@@ -218,20 +231,23 @@
         aria-label="Account"
         aria-haspopup="true"
         [attr.aria-expanded]="showProfileMenu"
-        (click)="toggleProfileMenu()">
+        (click)="toggleProfileMenu()"
+      >
 
         <svg viewBox="0 0 24 24">
 
           <circle
             cx="12"
             cy="8"
-            r="4">
+            r="4"
+          >
           </circle>
 
           <path
             d="M4 21
                C4 16.8 7.4 14 12 14
-               C16.6 14 20 16.8 20 21">
+               C16.6 14 20 16.8 20 21"
+          >
           </path>
 
         </svg>
@@ -239,14 +255,18 @@
       </button>
 
 
-      <!-- PROFILE DROPDOWN -->
+      <!-- =================================================
+           PROFILE DROPDOWN
+      ================================================== -->
 
       @if (showProfileMenu) {
 
         <div class="profile-menu">
 
 
-          <!-- GUEST -->
+          <!-- =================================================
+               GUEST
+          ================================================== -->
 
           @if (!isLoggedIn) {
 
@@ -270,7 +290,8 @@
             <button
               type="button"
               class="profile-menu-button primary"
-              (click)="goToLogin()">
+              (click)="goToLogin()"
+            >
 
               Login
 
@@ -280,7 +301,8 @@
             <button
               type="button"
               class="profile-menu-button secondary"
-              (click)="goToRegister()">
+              (click)="goToRegister()"
+            >
 
               Create Account
 
@@ -289,41 +311,54 @@
           }
 
 
-          <!-- LOGGED IN -->
+
+          <!-- =================================================
+               LOGGED IN
+          ================================================== -->
 
           @if (isLoggedIn) {
 
-            <div class="profile-menu-header">
+            <div class="profile-menu-header logged-user-header">
 
               <span class="profile-menu-label">
                 ZELL COLLECTION
               </span>
 
-              <h3>
-                My Account
+
+              <!-- USER NAME -->
+
+              <h3 class="logged-user-name">
+                {{ userName }}
               </h3>
 
+
               <p>
-                Manage your profile and orders
+                Welcome back
               </p>
 
             </div>
 
 
+            <!-- MY ACCOUNT -->
+
             <button
               type="button"
               class="profile-menu-button primary"
-              (click)="goToAccount()">
+              (click)="goToAccount()"
+            >
 
               My Account
 
             </button>
 
 
+            <!-- LOGOUT -->
+
             <button
               type="button"
               class="profile-menu-button secondary logout-button"
-              (click)="logout()">
+              (click)="logout()"
+            >
 
               Logout
 
@@ -346,17 +381,20 @@
     <a
       routerLink="/order"
       class="header-icon"
-      aria-label="Orders">
+      aria-label="Orders"
+    >
 
       <svg viewBox="0 0 24 24">
 
         <path
-          d="M6 8H18L19.5 21H4.5L6 8Z">
+          d="M6 8H18L19.5 21H4.5L6 8Z"
+        >
         </path>
 
         <path
           d="M9 8V6
-             C9 3.8 15 3.8 15 6V8">
+             C9 3.8 15 3.8 15 6V8"
+        >
         </path>
 
       </svg>
@@ -372,7 +410,8 @@
     <a
       routerLink="/cart"
       class="header-icon"
-      aria-label="Cart">
+      aria-label="Cart"
+    >
 
       <svg viewBox="0 0 24 24">
 
@@ -381,19 +420,22 @@
              C7.4 16.2 8.3 17 9.4 17
              H18.2
              C19.3 17 20.2 16.2 20.4 15.2
-             L22 8H6">
+             L22 8H6"
+        >
         </path>
 
         <circle
           cx="9"
           cy="20"
-          r="1">
+          r="1"
+        >
         </circle>
 
         <circle
           cx="18"
           cy="20"
-          r="1">
+          r="1"
+        >
         </circle>
 
       </svg>
@@ -434,7 +476,8 @@
 
       <a
         routerLink="/home"
-        (click)="closeMobileMenu()">
+        (click)="closeMobileMenu()"
+      >
 
         Home
 
@@ -445,7 +488,8 @@
 
       <a
         routerLink="/products"
-        (click)="closeMobileMenu()">
+        (click)="closeMobileMenu()"
+      >
 
         Shop
 
@@ -470,7 +514,8 @@
 
           <button
             type="button"
-            (click)="selectCategory(category)">
+            (click)="selectCategory(category)"
+          >
 
             {{ category }}
 
@@ -479,6 +524,7 @@
         }
 
       </div>
+
 
 
       <!-- =================================================
@@ -496,7 +542,8 @@
 
           <button
             type="button"
-            (click)="goToLogin()">
+            (click)="goToLogin()"
+          >
 
             Login
 
@@ -505,7 +552,8 @@
 
           <button
             type="button"
-            (click)="goToRegister()">
+            (click)="goToRegister()"
+          >
 
             Create Account
 
@@ -516,18 +564,34 @@
 
         @if (isLoggedIn) {
 
+
+          <!-- MOBILE USER NAME -->
+
+          <div class="mobile-user-name">
+
+            {{ userName }}
+
+          </div>
+
+
+          <!-- MY ACCOUNT -->
+
           <button
             type="button"
-            (click)="goToAccount()">
+            (click)="goToAccount()"
+          >
 
             My Account
 
           </button>
 
 
+          <!-- LOGOUT -->
+
           <button
             type="button"
-            (click)="logout()">
+            (click)="logout()"
+          >
 
             Logout
 

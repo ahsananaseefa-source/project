@@ -2,6 +2,8 @@
 
 <div class="wishlist-page">
 
+  <!-- WISHLIST HEADER -->
+
   <div class="wishlist-header">
 
     <p>ZELL COLLECTION</p>
@@ -20,55 +22,54 @@
   </div>
 
 
+  <!-- EMPTY WISHLIST -->
+
   @if (isWishlistEmpty$ | async) {
 
     <div class="empty-wishlist">
 
-      <h2>
-        Your wishlist is empty
-      </h2>
+      <div class="empty-wishlist-icon">♡</div>
 
-      <p>
-        Save your favourite jewellery here.
+      <p class="empty-brand">ZELL COLLECTION</p>
+
+      <h2>Your Wishlist is Empty</h2>
+
+      <p class="empty-description">
+        Save your favourite jewellery pieces here
+        and come back to them anytime.
       </p>
+
+      <button
+        type="button"
+        class="view-products-button"
+        routerLink="/products"
+      >
+        View Products
+      </button>
 
     </div>
 
   } @else {
 
-    @if (
-      wishlistDisplayItems$ | async;
-      as wishlistItems
-    ) {
+    <!-- WISHLIST PRODUCTS -->
+
+    @if (wishlistDisplayItems$ | async; as wishlistItems) {
 
       <div class="wishlist-grid">
 
-        @for (
-          item of wishlistItems;
-          track item.productId
-        ) {
+        @for (item of wishlistItems; track item.productId) {
 
           <article
             class="wishlist-card"
-            [routerLink]="[
-              '/products',
-              item.product.id
-            ]"
+            [routerLink]="['/products', item.product.id]"
           >
 
-            <!-- Product Image -->
-
             <div class="wishlist-image">
-
               <img
                 [src]="item.product.image"
                 [alt]="item.product.name"
               >
-
             </div>
-
-
-            <!-- Product Details -->
 
             <div class="wishlist-details">
 
@@ -76,14 +77,11 @@
                 {{ item.product.category }}
               </p>
 
-              <h2>
-                {{ item.product.name }}
-              </h2>
+              <h2>{{ item.product.name }}</h2>
 
               <p class="description">
                 {{ item.product.description }}
               </p>
-
 
               <div class="wishlist-info">
 
@@ -97,44 +95,29 @@
 
               </div>
 
-
               <p class="stock">
-
                 @if (item.product.stock > 0) {
-
-                  {{ item.product.stock }}
-                  available
-
+                  {{ item.product.stock }} available
                 } @else {
-
                   Out of stock
-
                 }
-
               </p>
-
 
               <p class="added-date">
-
                 Added on
                 {{ item.addedAt | date:'mediumDate' }}
-
               </p>
 
-
-              <!-- Remove Button -->
-
+              <!-- REMOVE (opens popup) -->
               <button
                 type="button"
                 class="remove-button"
                 (click)="
                   $event.stopPropagation();
-                  removeProduct(item.productId)
+                  removeProduct(item.productId, item.product.name)
                 "
               >
-
                 Remove from Wishlist
-
               </button>
 
             </div>
@@ -146,14 +129,14 @@
       </div>
 
 
+      <!-- CLEAR WISHLIST (opens popup) -->
+
       <button
         type="button"
         class="clear-button"
-        (click)="clearWishlist()"
+        (click)="openClearConfirmation()"
       >
-
         Clear Wishlist
-
       </button>
 
     }
@@ -162,3 +145,108 @@
 
 </div>
 
+
+<!-- CLEAR WISHLIST CONFIRMATION -->
+
+@if (showClearConfirmation) {
+
+  <div class="confirmation-overlay" (click)="cancelClear()">
+
+    <div
+      class="confirmation-card"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+
+      <div class="confirmation-icon">♡</div>
+
+      <p class="confirmation-brand">ZELL COLLECTION</p>
+
+      <h2>Clear Your Wishlist?</h2>
+
+      <p class="confirmation-message">
+        All saved products will be removed from your wishlist.
+        Are you sure you want to continue?
+      </p>
+
+      <div class="confirmation-actions">
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancelClear()"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="confirm-remove-button"
+          (click)="confirmClear()"
+        >
+          Clear Wishlist
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- REMOVE PRODUCT CONFIRMATION -->
+
+@if (showRemoveConfirmation) {
+
+  <div class="confirmation-overlay" (click)="cancelRemove()">
+
+    <div
+      class="confirmation-card"
+      role="dialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+
+      <div class="confirmation-icon">♡</div>
+
+      <p class="confirmation-brand">ZELL COLLECTION</p>
+
+      <h2>Remove from Wishlist?</h2>
+
+      @if (productToRemoveName) {
+        <p class="confirmation-product">{{ productToRemoveName }}</p>
+      }
+
+      <p class="confirmation-message">
+        Are you sure you want to remove this product
+        from your wishlist?
+      </p>
+
+      <div class="confirmation-actions">
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cancelRemove()"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="confirm-remove-button"
+          (click)="confirmRemove()"
+        >
+          Remove
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

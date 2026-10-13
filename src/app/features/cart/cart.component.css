@@ -1,14 +1,19 @@
+/* =========================================================
+   CART PAGE
+========================================================= */
+
 .cart-page {
   min-height: 100vh;
   padding: 60px;
+
   background-color: #F7F4EC;
   color: #292A25;
 }
 
 
-/* =========================
+/* =========================================================
    CART HEADER
-========================= */
+========================================================= */
 
 .cart-header {
   text-align: center;
@@ -17,13 +22,19 @@
 
 .cart-header p {
   margin: 0;
+
   color: #B8955A;
+
   letter-spacing: 3px;
   font-size: 13px;
 }
 
 .cart-header h1 {
   margin: 12px 0;
+
+  color: #292A25;
+
+  font-family: Georgia, serif;
   font-size: 42px;
   font-weight: 500;
 }
@@ -34,79 +45,191 @@
 }
 
 
-/* =========================
+/* =========================================================
    EMPTY CART
-========================= */
+========================================================= */
 
 .empty-cart {
   max-width: 600px;
+
   margin: 80px auto;
   padding: 60px 30px;
+
   text-align: center;
+
   background-color: #E8E1D2;
+}
+
+.empty-cart-icon {
+  margin-bottom: 18px;
+
+  color: #B8955A;
+
+  font-size: 48px;
 }
 
 .empty-cart h2 {
   margin: 0 0 12px;
-  font-size: 24px;
+
+  color: #292A25;
+
+  font-family: Georgia, serif;
+  font-size: 28px;
   font-weight: 500;
 }
 
 .empty-cart p {
-  margin: 0;
+  margin: 0 0 25px;
+
   color: #66675F;
+
   font-size: 14px;
   line-height: 1.6;
 }
 
+.empty-cart .empty-brand {
+  margin: 0 0 8px;
 
-/* =========================
+  color: #7D8B74;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+
+/* =========================================================
+   VIEW PRODUCTS
+========================================================= */
+
+.view-products-button {
+  padding: 13px 28px;
+
+  border: none;
+  border-radius: 6px;
+
+  background-color: #7D8B74;
+  color: #F7F4EC;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.view-products-button:hover {
+  background-color: #B8955A;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
    CART CONTAINER
-========================= */
+========================================================= */
 
 .cart-container {
   display: grid;
+
   grid-template-columns: 1fr 340px;
+
   gap: 40px;
+
   align-items: start;
 }
 
 
-/* =========================
+/* =========================================================
    CART ITEMS
-========================= */
+========================================================= */
 
 .cart-items {
   display: flex;
   flex-direction: column;
+
   gap: 20px;
 }
 
+
+/* =========================================================
+   8 PRODUCT LIMIT MESSAGE
+========================================================= */
+
+.cart-product-limit-message {
+  padding: 16px 20px;
+
+  border-left: 3px solid #B8955A;
+
+  background-color: #E8E1D2;
+
+  color: #292A25;
+}
+
+.cart-product-limit-message span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #B8955A;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 2px;
+}
+
+.cart-product-limit-message p {
+  margin: 0;
+
+  color: #66675F;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   CART ITEM
+========================================================= */
+
 .cart-item {
   display: grid;
+
   grid-template-columns: 180px 1fr auto;
+
   gap: 25px;
+
   padding: 22px;
+
   background-color: #E8E1D2;
 }
 
 
-/* =========================
+/* =========================================================
    PRODUCT IMAGE
-========================= */
+========================================================= */
 
 .cart-product-image {
   width: 180px;
   height: 200px;
+
   object-fit: cover;
+
   display: block;
+
   background-color: #D9DED3;
 }
 
 
-/* =========================
+/* =========================================================
    PRODUCT INFO
-========================= */
+========================================================= */
 
 .cart-product-info {
   display: flex;
@@ -116,29 +239,40 @@
 
 .category {
   margin: 0;
+
   color: #B8955A;
+
   font-size: 11px;
+
   letter-spacing: 2px;
+
   text-transform: uppercase;
 }
 
 .cart-product-info h2 {
   margin: 8px 0;
+
+  color: #292A25;
+
+  font-family: Georgia, serif;
+
   font-size: 22px;
   font-weight: 500;
 }
 
 .price {
   margin: 0;
+
   color: #292A25;
+
   font-size: 17px;
   font-weight: 600;
 }
 
 
-/* =========================
+/* =========================================================
    QUANTITY
-========================= */
+========================================================= */
 
 .quantity-section {
   margin-top: 22px;
@@ -146,26 +280,36 @@
 
 .quantity-section > span {
   display: block;
+
   margin-bottom: 8px;
+
   color: #66675F;
+
   font-size: 13px;
 }
 
 .quantity-controls {
   display: flex;
   align-items: center;
+
   width: fit-content;
+
   border: 1px solid #B8955A;
 }
 
 .quantity-controls button {
   width: 36px;
   height: 34px;
+
   border: none;
+
   background-color: transparent;
   color: #292A25;
+
   font-size: 18px;
+
   cursor: pointer;
+
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -183,38 +327,38 @@
 
 .quantity-controls span {
   width: 40px;
+
   text-align: center;
+
+  color: #292A25;
+
   font-size: 14px;
   font-weight: 500;
 }
 
 
-/* =========================
-   QUANTITY LIMIT MESSAGE
-========================= */
-
-.quantity-limit-message {
-  margin: 8px 0 0;
-  color: #B8955A;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-
-/* =========================
+/* =========================================================
    REMOVE BUTTON
-========================= */
+========================================================= */
 
 .remove-button {
   margin-top: 18px;
+
   padding: 0;
+
   border: none;
+
   background-color: transparent;
   color: #66675F;
+
   font-family: inherit;
+
   font-size: 12px;
+
   cursor: pointer;
+
   text-decoration: underline;
+
   text-underline-offset: 3px;
 }
 
@@ -223,82 +367,107 @@
 }
 
 
-/* =========================
+/* =========================================================
    SUBTOTAL
-========================= */
+========================================================= */
 
 .cart-subtotal {
   min-width: 110px;
+
   display: flex;
   flex-direction: column;
+
   align-items: flex-end;
+
   gap: 8px;
 }
 
 .cart-subtotal span {
   color: #66675F;
+
   font-size: 12px;
 }
 
 .cart-subtotal strong {
   color: #292A25;
+
   font-size: 17px;
 }
 
 
-/* =========================
+/* =========================================================
    CART SUMMARY
-========================= */
+========================================================= */
 
 .cart-summary {
   position: sticky;
   top: 30px;
+
   padding: 28px;
+
   background-color: #E8E1D2;
 }
 
 .cart-summary h2 {
   margin: 0 0 25px;
+
+  color: #292A25;
+
+  font-family: Georgia, serif;
+
   font-size: 22px;
   font-weight: 500;
 }
 
 .summary-row {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   padding: 18px 0;
+
   border-top: 1px solid #D2CCBE;
   border-bottom: 1px solid #D2CCBE;
 }
 
 .summary-row span {
   color: #66675F;
+
   font-size: 14px;
 }
 
 .summary-row strong {
   color: #292A25;
+
   font-size: 20px;
 }
 
 
-/* =========================
-   PROCEED TO CHECKOUT
-========================= */
+/* =========================================================
+   CHECKOUT
+========================================================= */
 
 .checkout-button {
   width: 100%;
   height: 48px;
+
   margin-top: 22px;
+
   border: none;
+
   background-color: #7D8B74;
   color: #F7F4EC;
+
   font-family: inherit;
+
   font-size: 13px;
   font-weight: 500;
+
   letter-spacing: 0.5px;
+
   cursor: pointer;
+
   transition:
     background-color 0.3s ease,
     transform 0.2s ease;
@@ -306,24 +475,32 @@
 
 .checkout-button:hover {
   background-color: #292A25;
+
   transform: translateY(-1px);
 }
 
 
-/* =========================
+/* =========================================================
    CLEAR CART
-========================= */
+========================================================= */
 
 .clear-cart-button {
   width: 100%;
   height: 42px;
+
   margin-top: 12px;
+
   border: 1px solid #B8955A;
+
   background-color: transparent;
   color: #292A25;
+
   font-family: inherit;
+
   font-size: 12px;
+
   cursor: pointer;
+
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -335,9 +512,321 @@
 }
 
 
-/* =========================
+/* =========================================================
+   CONFIRMATION OVERLAY
+========================================================= */
+
+.confirmation-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background-color: rgba(41, 42, 37, 0.55);
+
+  backdrop-filter: blur(4px);
+}
+
+
+/* =========================================================
+   CONFIRMATION CARD
+========================================================= */
+
+.confirmation-card {
+  width: 100%;
+  max-width: 430px;
+
+  padding: 40px 30px;
+
+  text-align: center;
+
+  background-color: #F7F4EC;
+
+  box-shadow:
+    0 20px 60px rgba(41, 42, 37, 0.2);
+
+  animation: confirmationOpen 0.2s ease;
+}
+
+@keyframes confirmationOpen {
+
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   CONFIRMATION CONTENT
+========================================================= */
+
+.confirmation-icon {
+  margin-bottom: 15px;
+
+  color: #B8955A;
+
+  font-size: 42px;
+}
+
+.confirmation-brand {
+  margin: 0 0 8px;
+
+  color: #7D8B74;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 2px;
+}
+
+.confirmation-card h2 {
+  margin: 0 0 12px;
+
+  color: #292A25;
+
+  font-family: Georgia, serif;
+
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.confirmation-product {
+  max-width: 330px;
+
+  margin: -2px auto 14px;
+
+  color: #B8955A;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  line-height: 1.5;
+}
+
+.confirmation-message {
+  max-width: 330px;
+
+  margin: 0 auto 28px;
+
+  color: #66675F;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   CONFIRMATION ACTIONS
+========================================================= */
+
+.confirmation-actions {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 12px;
+}
+
+.cancel-button,
+.confirm-remove-button {
+  min-width: 120px;
+
+  height: 44px;
+
+  padding: 0 20px;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.cancel-button {
+  border: 1px solid #7D8B74;
+
+  background-color: transparent;
+  color: #7D8B74;
+}
+
+.cancel-button:hover {
+  background-color: #7D8B74;
+  color: #F7F4EC;
+}
+
+.confirm-remove-button {
+  border: 1px solid #B8955A;
+
+  background-color: #B8955A;
+  color: #F7F4EC;
+}
+
+.confirm-remove-button:hover {
+  background-color: #292A25;
+  border-color: #292A25;
+}
+
+
+/* =========================================================
+   8 PRODUCT LIMIT TOAST
+========================================================= */
+
+.cart-toast {
+  position: fixed;
+
+  top: 24px;
+  right: 24px;
+
+  z-index: 1100;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  width: calc(100% - 48px);
+  max-width: 380px;
+
+  box-sizing: border-box;
+
+  padding: 16px 18px;
+
+  overflow: hidden;
+
+  background-color: #292A25;
+
+  border-left: 3px solid #B8955A;
+
+  box-shadow:
+    0 14px 36px rgba(41, 42, 37, 0.28);
+
+  animation: toastIn 0.3s ease;
+}
+
+@keyframes toastIn {
+
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+.cart-toast-content {
+  flex: 1;
+}
+
+.cart-toast-content span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #B8955A;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 2px;
+}
+
+.cart-toast-content p {
+  margin: 0;
+
+  color: #F7F4EC;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+.cart-toast-close {
+  flex-shrink: 0;
+
+  width: 24px;
+  height: 24px;
+
+  padding: 0;
+
+  border: none;
+
+  background-color: transparent;
+  color: #F7F4EC;
+
+  font-size: 20px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  opacity: 0.7;
+
+  transition: opacity 0.2s ease;
+}
+
+.cart-toast-close:hover {
+  opacity: 1;
+}
+
+/* Progress bar that shrinks over the 3 seconds */
+.cart-toast-progress {
+  position: absolute;
+
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background-color: #B8955A;
+
+  transform-origin: left;
+
+  animation-name: toastProgress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes toastProgress {
+
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+
+}
+
+
+/* =========================================================
    TABLET
-========================= */
+========================================================= */
 
 @media (max-width: 1000px) {
 
@@ -356,9 +845,9 @@
 }
 
 
-/* =========================
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
 @media (max-width: 650px) {
 
@@ -376,7 +865,9 @@
 
   .cart-item {
     grid-template-columns: 110px 1fr;
+
     gap: 18px;
+
     padding: 16px;
   }
 
@@ -391,16 +882,35 @@
 
   .cart-subtotal {
     grid-column: 2;
+
     align-items: flex-start;
+
     min-width: auto;
+  }
+
+  .cart-product-limit-message {
+    padding: 14px 16px;
+  }
+
+  .confirmation-card {
+    padding: 35px 22px;
+  }
+
+  .cart-toast {
+    top: 14px;
+    right: 14px;
+    left: 14px;
+
+    width: auto;
+    max-width: none;
   }
 
 }
 
 
-/* =========================
+/* =========================================================
    SMALL MOBILE
-========================= */
+========================================================= */
 
 @media (max-width: 420px) {
 
@@ -423,6 +933,15 @@
 
   .cart-summary {
     padding: 22px;
+  }
+
+  .confirmation-actions {
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .confirm-remove-button {
+    width: 100%;
   }
 
 }

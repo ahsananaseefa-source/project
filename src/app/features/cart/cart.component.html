@@ -2,43 +2,64 @@
 
 <div class="cart-page">
 
+  <!-- HEADER -->
   <div class="cart-header">
-
     <p>ZELL COLLECTION</p>
-
     <h1>Shopping Cart</h1>
-
-    <span>
-      Review your selected products
-    </span>
-
+    <span>Review your selected products</span>
   </div>
 
-
+  <!-- EMPTY CART -->
   @if (isCartEmpty$ | async) {
 
     <div class="empty-cart">
 
+      <div class="empty-cart-icon">♡</div>
+
+      <p class="empty-brand">ZELL COLLECTION</p>
+
       <h2>Your cart is empty</h2>
 
-      <p>
+      <p class="empty-description">
         Add some beautiful jewellery to your cart.
       </p>
+
+      <button
+        type="button"
+        class="view-products-button"
+        (click)="goToProducts()"
+      >
+        View Products
+      </button>
 
     </div>
 
   } @else {
 
+    <!-- CART DATA -->
     @if (cartItems$ | async; as cartItems) {
 
       <div class="cart-container">
 
+        <!-- CART ITEMS -->
         <div class="cart-items">
 
-          @for (
-            item of cartItems;
-            track item.product.id
-          ) {
+          @if (hasReachedProductLimit(cartItems)) {
+
+            <div class="cart-product-limit-message">
+
+              <span>ZELL COLLECTION</span>
+
+              <p>
+                Your cart has reached the maximum
+                of {{ MAX_CART_PRODUCTS }} different products.
+              </p>
+
+            </div>
+
+          }
+
+          @for (item of cartItems; track item.product.id) {
 
             <div class="cart-item">
 
@@ -48,53 +69,36 @@
                 class="cart-product-image"
               >
 
-
               <div class="cart-product-info">
 
-                <p class="category">
-                  {{ item.product.category }}
-                </p>
+                <p class="category">{{ item.product.category }}</p>
 
-                <h2>
-                  {{ item.product.name }}
-                </h2>
+                <h2>{{ item.product.name }}</h2>
 
-                <p class="price">
-                  ₹{{ item.product.price }}
-                </p>
-
+                <p class="price">₹{{ item.product.price }}</p>
 
                 <div class="quantity-section">
 
-                  <span>
-                    Quantity
-                  </span>
+                  <span>Quantity</span>
 
                   <div class="quantity-controls">
 
                     <button
                       type="button"
+                      aria-label="Decrease quantity"
                       [disabled]="item.quantity <= 1"
-                      (click)="
-                        decreaseQuantity(
-                          item.product.id
-                        )
-                      "
+                      (click)="decreaseQuantity(item.product.id)"
                     >
                       −
                     </button>
 
-                    <span>
-                      {{ item.quantity }}
-                    </span>
+                    <span>{{ item.quantity }}</span>
 
                     <button
                       type="button"
+                      aria-label="Increase quantity"
                       [disabled]="
-                        item.quantity >=
-                        getMaximumQuantity(
-                          item.product.stock
-                        )
+                        item.quantity >= getMaximumQuantity(item.product.stock)
                       "
                       (click)="
                         increaseQuantity(
@@ -109,46 +113,16 @@
 
                   </div>
 
-
-                  @if (
-                    item.quantity >=
-                    getMaximumQuantity(
-                      item.product.stock
-                    )
-                  ) {
-
-                    <p class="quantity-limit-message">
-
-                      @if (
-                        item.product.stock <
-                        MAX_CART_QUANTITY
-                      ) {
-
-                        Only
-                        {{ item.product.stock }}
-                        items available in stock.
-
-                      } @else {
-
-                        Maximum
-                        {{ MAX_CART_QUANTITY }}
-                        items allowed for this product.
-
-                      }
-
-                    </p>
-
-                  }
-
                 </div>
-
 
                 <button
                   type="button"
                   class="remove-button"
                   (click)="
                     removeProduct(
-                      item.product.id
+                      item.product.id,
+                      cartItems.length,
+                      item.product.name
                     )
                   "
                 >
@@ -157,17 +131,9 @@
 
               </div>
 
-
               <div class="cart-subtotal">
-
-                <span>
-                  Subtotal
-                </span>
-
-                <strong>
-                  ₹{{ item.product.price * item.quantity }}
-                </strong>
-
+                <span>Subtotal</span>
+                <strong>₹{{ item.product.price * item.quantity }}</strong>
               </div>
 
             </div>
@@ -176,28 +142,15 @@
 
         </div>
 
-
+        <!-- ORDER SUMMARY -->
         <div class="cart-summary">
 
-          <h2>
-            Order Summary
-          </h2>
-
+          <h2>Order Summary</h2>
 
           <div class="summary-row">
-
-            <span>
-              Total
-            </span>
-
-            <strong>
-              ₹{{ totalAmount$ | async }}
-            </strong>
-
+            <span>Total</span>
+            <strong>₹{{ totalAmount$ | async }}</strong>
           </div>
-
-
-          <!-- Proceed to Checkout -->
 
           <button
             type="button"
@@ -207,11 +160,11 @@
             Proceed to Checkout
           </button>
 
-
+          <!-- CHANGED: opens confirmation popup -->
           <button
             type="button"
             class="clear-cart-button"
-            (click)="clearCart()"
+            (click)="openClearConfirmation()"
           >
             Clear Cart
           </button>
@@ -221,6 +174,148 @@
       </div>
 
     }
+
+  }
+
+  <!-- CLEAR CART CONFIRMATION POPUP -->
+  @if (showClearConfirmation) {
+
+    <div class="confirmation-overlay" (click)="cancelClear()">
+
+      <div
+        class="confirmation-card"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+
+        <div class="confirmation-icon">♡</div>
+
+        <p class="confirmation-brand">ZELL COLLECTION</p>
+
+        <h2>Clear Your Cart?</h2>
+
+        <p class="confirmation-message">
+          All products will be removed from your cart.
+          Are you sure you want to continue?
+        </p>
+
+        <div class="confirmation-actions">
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="cancelClear()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="confirm-remove-button"
+            (click)="confirmClear()"
+          >
+            Clear Cart
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+  <!-- REMOVE CONFIRMATION POPUP -->
+  @if (showRemoveConfirmation) {
+
+    <div class="confirmation-overlay" (click)="cancelRemove()">
+
+      <div
+        class="confirmation-card"
+        role="dialog"
+        aria-modal="true"
+        (click)="$event.stopPropagation()"
+      >
+
+        <div class="confirmation-icon">♡</div>
+
+        <p class="confirmation-brand">ZELL COLLECTION</p>
+
+        <h2>Remove from Cart?</h2>
+
+        @if (productToRemoveName) {
+          <p class="confirmation-product">{{ productToRemoveName }}</p>
+        }
+
+        <p class="confirmation-message">
+          @if (isLastProduct) {
+            This is the last item in your cart.
+            Are you sure you want to remove it?
+          } @else {
+            Are you sure you want to remove
+            this product from your cart?
+          }
+        </p>
+
+        <div class="confirmation-actions">
+
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="cancelRemove()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="confirm-remove-button"
+            (click)="confirmRemove()"
+          >
+            Remove
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+  <!-- 8 PRODUCT LIMIT TOAST -->
+  @if (showCartProductLimitMessage) {
+
+    <div class="cart-toast" role="alert">
+
+      <div class="cart-toast-content">
+
+        <span>ZELL COLLECTION</span>
+
+        <p>
+          You can add a maximum of
+          {{ MAX_CART_PRODUCTS }}
+          different products to your cart.
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="cart-toast-close"
+        aria-label="Close message"
+        (click)="closeProductLimitMessage()"
+      >
+        ×
+      </button>
+
+      <div
+        class="cart-toast-progress"
+        [style.animation-duration.ms]="toastDurationMs"
+      ></div>
+
+    </div>
 
   }
 

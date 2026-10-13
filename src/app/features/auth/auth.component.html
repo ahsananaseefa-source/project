@@ -2,9 +2,7 @@
 
   <div class="auth-card">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+    <!-- HEADER -->
 
     <div class="auth-header">
 
@@ -33,11 +31,9 @@
     </div>
 
 
-    <!-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== -->
+    <!-- GENERAL SUCCESS MESSAGE -->
 
-    @if (successMessage) {
+    @if (successMessage && !otpModalOpen) {
 
       <div class="success-message">
         {{ successMessage }}
@@ -46,11 +42,9 @@
     }
 
 
-    <!-- =====================================================
-         ERROR MESSAGE
-    ====================================================== -->
+    <!-- GENERAL ERROR MESSAGE -->
 
-    @if (errorMessage) {
+    @if (errorMessage && !otpModalOpen) {
 
       <div class="error-message">
         {{ errorMessage }}
@@ -59,9 +53,7 @@
     }
 
 
-    <!-- =====================================================
-         AUTH FORM
-    ====================================================== -->
+    <!-- AUTH FORM -->
 
     <form
       #authForm="ngForm"
@@ -69,10 +61,7 @@
       novalidate
     >
 
-
-      <!-- ===================================================
-           NAME - REGISTER ONLY
-      ==================================================== -->
+      <!-- FULL NAME -->
 
       @if (!isLogin) {
 
@@ -87,18 +76,17 @@
             type="text"
             name="name"
             [(ngModel)]="name"
+            (input)="onNameInput()"
             placeholder="Enter your full name"
             autocomplete="name"
+            maxlength="50"
             required
           />
 
-          @if (
-            authForm.submitted &&
-            !name.trim()
-          ) {
+          @if (nameError) {
 
             <small class="field-error">
-              Name is required.
+              {{ nameError }}
             </small>
 
           }
@@ -108,9 +96,7 @@
       }
 
 
-      <!-- ===================================================
-           PHONE - REGISTER ONLY
-      ==================================================== -->
+      <!-- PHONE -->
 
       @if (!isLogin) {
 
@@ -125,6 +111,7 @@
             type="tel"
             name="phone"
             [(ngModel)]="phone"
+            (input)="onPhoneInput()"
             maxlength="10"
             inputmode="numeric"
             placeholder="Enter 10-digit phone number"
@@ -132,13 +119,10 @@
             required
           />
 
-          @if (
-            authForm.submitted &&
-            !phone.trim()
-          ) {
+          @if (phoneError) {
 
             <small class="field-error">
-              Phone number is required.
+              {{ phoneError }}
             </small>
 
           }
@@ -148,9 +132,7 @@
       }
 
 
-      <!-- ===================================================
-           EMAIL
-      ==================================================== -->
+      <!-- EMAIL -->
 
       <div class="form-group">
 
@@ -163,17 +145,25 @@
           type="email"
           name="email"
           [(ngModel)]="email"
+          (input)="onEmailInput()"
           placeholder="Enter your email"
           autocomplete="email"
+          maxlength="100"
           required
         />
+
+        @if (emailError) {
+
+          <small class="field-error">
+            {{ emailError }}
+          </small>
+
+        }
 
       </div>
 
 
-      <!-- ===================================================
-           PASSWORD
-      ==================================================== -->
+      <!-- PASSWORD -->
 
       <div class="form-group">
 
@@ -185,9 +175,14 @@
 
           <input
             id="password"
-            [type]="showPassword ? 'text' : 'password'"
+            [type]="
+              showPassword
+                ? 'text'
+                : 'password'
+            "
             name="password"
             [(ngModel)]="password"
+            (input)="onPasswordInput()"
             placeholder="Enter your password"
             [autocomplete]="
               isLogin
@@ -214,153 +209,81 @@
 
         </div>
 
+        @if (passwordError) {
 
-        <!-- PASSWORD REQUIREMENTS - REGISTER ONLY -->
-
-        @if (!isLogin) {
-
-          <p class="password-info">
-
-            Password must contain at least 8 characters,
-            uppercase, lowercase, number and special character.
-
-          </p>
+          <small class="field-error">
+            {{ passwordError }}
+          </small>
 
         }
 
       </div>
 
 
-      <!-- =====================================================
-           OTP SECTION - REGISTER ONLY
-      ====================================================== -->
+      <!-- CONFIRM PASSWORD -->
 
-      @if (!isLogin && otpSent && !otpVerified) {
+      @if (!isLogin) {
 
-        <div class="otp-section">
+        <div class="form-group">
 
-          <div class="otp-heading">
+          <label for="confirmPassword">
+            Confirm Password
+          </label>
 
-            <div>
-
-              <p class="otp-title">
-                Verify Your Email
-              </p>
-
-              <p class="otp-description">
-                Enter the 6-digit OTP sent to
-              </p>
-
-              <p class="otp-email">
-                {{ email }}
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <!-- =================================================
-               OTP INPUT
-          ================================================== -->
-
-          <div class="form-group otp-input-group">
-
-            <label for="otp">
-              One-Time Password
-            </label>
+          <div class="password-wrapper">
 
             <input
-              id="otp"
-              type="text"
-              name="otp"
-              [(ngModel)]="otp"
-              maxlength="6"
-              minlength="6"
-              inputmode="numeric"
-              autocomplete="one-time-code"
-              placeholder="Enter 6-digit OTP"
-              class="otp-input"
+              id="confirmPassword"
+              [type]="
+                showConfirmPassword
+                  ? 'text'
+                  : 'password'
+              "
+              name="confirmPassword"
+              [(ngModel)]="confirmPassword"
+              (input)="onConfirmPasswordInput()"
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              required
             />
+
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="toggleConfirmPassword()"
+              [attr.aria-label]="
+                showConfirmPassword
+                  ? 'Hide confirm password'
+                  : 'Show confirm password'
+              "
+            >
+
+              {{
+                showConfirmPassword
+                  ? 'Hide'
+                  : 'Show'
+              }}
+
+            </button>
 
           </div>
 
+          @if (confirmPasswordError) {
 
-          <!-- =================================================
-               VERIFY BUTTON
-          ================================================== -->
+            <small class="field-error">
+              {{ confirmPasswordError }}
+            </small>
 
-          <button
-            type="button"
-            class="verify-button"
-            (click)="verifyOtp()"
-            [disabled]="otpVerifying"
-          >
-
-            @if (otpVerifying) {
-
-              Verifying...
-
-            } @else {
-
-              Verify OTP
-
-            }
-
-          </button>
-
-
-          <!-- =================================================
-               RESEND BUTTON
-          ================================================== -->
-
-          <button
-            type="button"
-            class="resend-button"
-            (click)="resendOtp()"
-            [disabled]="
-              !resendAvailable ||
-              otpSending
-            "
-          >
-
-            @if (otpSending) {
-
-              Sending...
-
-            } @else if (resendAvailable) {
-
-              Resend OTP
-
-            } @else {
-
-              Resend OTP in {{ resendSeconds }} seconds
-
-            }
-
-          </button>
-
-
-          <!-- =================================================
-               OTP NOTE
-          ================================================== -->
-
-          <p class="otp-note">
-            The OTP is valid for 5 minutes.
-          </p>
+          }
 
         </div>
 
       }
 
 
-      <!-- =====================================================
-           MAIN BUTTON
-      ====================================================== -->
+      <!-- MAIN BUTTON -->
 
       @if (isLogin) {
-
-        <!-- LOGIN BUTTON -->
 
         <button
           type="submit"
@@ -373,39 +296,30 @@
 
       } @else {
 
-        <!-- REGISTER / SEND OTP BUTTON -->
+        <button
+          type="submit"
+          class="auth-button"
+          [disabled]="otpSending"
+        >
 
-        @if (!otpSent) {
+          @if (otpSending) {
 
-          <button
-            type="submit"
-            class="auth-button"
-            [disabled]="otpSending"
-          >
+            Creating Account...
 
-            @if (otpSending) {
+          } @else {
 
-              Sending OTP...
+            Create Account
 
-            } @else {
+          }
 
-              Send OTP
-
-            }
-
-          </button>
-
-        }
+        </button>
 
       }
-
 
     </form>
 
 
-    <!-- =====================================================
-         SWITCH LOGIN / REGISTER
-    ====================================================== -->
+    <!-- LOGIN / REGISTER SWITCH -->
 
     <div class="auth-switch">
 
@@ -446,3 +360,176 @@
   </div>
 
 </div>
+
+
+<!-- =========================================================
+     OTP POPUP (STICKY)
+     - No close button
+     - Background click does nothing
+     - Closes only after OTP is verified
+     - Timer is shown ONLY in the top box
+========================================================== -->
+
+@if (otpModalOpen) {
+
+  <div
+    class="otp-modal-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="otp-title"
+  >
+
+    <div class="otp-modal">
+
+      <!-- OTP HEADER -->
+
+      <div class="otp-modal-header">
+
+        <div>
+
+          <p
+            id="otp-title"
+            class="otp-title"
+          >
+            Verify Your Email
+          </p>
+
+          <p class="otp-description">
+            Enter the 6-digit OTP sent to
+          </p>
+
+          <p class="otp-email">
+            {{ email }}
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- TIMER (the only place where the timer is shown) -->
+
+      <div class="otp-timer">
+
+        <span class="timer-label">
+
+          @if (otpRemainingSeconds > 0) {
+            OTP expires in
+          } @else {
+            OTP expired
+          }
+
+        </span>
+
+        <span class="timer-value">
+          {{ otpTimerDisplay }}
+        </span>
+
+      </div>
+
+
+      <!-- ERROR -->
+
+      @if (errorMessage) {
+
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      <!-- SUCCESS -->
+
+      @if (successMessage) {
+
+        <div class="success-message">
+          {{ successMessage }}
+        </div>
+
+      }
+
+
+      <!-- OTP INPUT -->
+
+      <div class="form-group otp-input-group">
+
+        <label for="otp">
+          One-Time Password
+        </label>
+
+        <input
+          id="otp"
+          type="text"
+          name="otp"
+          [(ngModel)]="otp"
+          maxlength="6"
+          minlength="6"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          placeholder="Enter 6-digit OTP"
+          class="otp-input"
+        />
+
+      </div>
+
+
+      <!-- VERIFY BUTTON (disabled when OTP has expired) -->
+
+      <button
+        type="button"
+        class="verify-button"
+        (click)="verifyOtp()"
+        [disabled]="otpVerifying || !generatedOtp"
+      >
+
+        @if (otpVerifying) {
+
+          Verifying...
+
+        } @else {
+
+          Verify OTP
+
+        }
+
+      </button>
+
+
+      <!-- RESEND OTP
+           No timer text here.
+           Disabled until the timer above reaches 0:00 -->
+
+      <button
+        type="button"
+        class="resend-button"
+        (click)="resendOtp()"
+        [disabled]="!canResend"
+      >
+
+        @if (otpSending) {
+
+          Sending...
+
+        } @else {
+
+          Resend OTP
+
+        }
+
+      </button>
+
+
+      <!-- OTP NOTE -->
+
+      <p class="otp-note">
+
+        The OTP is valid for 1 minute.
+
+      </p>
+
+    </div>
+
+  </div>
+
+}

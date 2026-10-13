@@ -12,6 +12,7 @@ import { WishlistEffects } from './store/wishlist/wishlist.effects';
 import { wishlistReducer } from './store/wishlist/wishlist.reducer';
 import { orderReducer } from './store/order/order.reducer';
 import { OrderEffects } from './store/order/order.effects';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 
 
@@ -31,5 +32,5 @@ export const appConfig: ApplicationConfig = {
       CartEffects,
       WishlistEffects,
       OrderEffects
-    ])]
+    ]), provideAnimationsAsync()]
 };

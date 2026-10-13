@@ -1,10 +1,12 @@
 <app-header></app-header>
 
+
 <div class="checkout-page">
 
-  <!-- =========================
+
+  <!-- =====================================================
        CHECKOUT HEADER
-  ========================= -->
+  ====================================================== -->
 
   <section class="checkout-header">
 
@@ -23,23 +25,27 @@
   </section>
 
 
-  <!-- =========================
+
+  <!-- =====================================================
        MAIN CHECKOUT
-  ========================= -->
+  ====================================================== -->
 
   <div class="checkout-container">
 
-    <!-- =========================
+
+    <!-- ===================================================
          LEFT SIDE
-    ========================= -->
+    ==================================================== -->
 
     <div class="checkout-main">
 
-      <!-- =========================
+
+      <!-- =================================================
            SHIPPING ADDRESS
-      ========================= -->
+      ================================================== -->
 
       <section class="checkout-section">
+
 
         <div class="section-heading">
 
@@ -56,9 +62,13 @@
           </div>
 
 
+          <!-- =============================================
+               ADD SECOND ADDRESS
+          ============================================== -->
+
           @if (
             !isAddressFormOpen &&
-            addresses.length < 2
+            addresses.length === 1
           ) {
 
             <button
@@ -66,7 +76,9 @@
               class="add-address-button"
               (click)="openAddAddress()"
             >
+
               + Add Address
+
             </button>
 
           }
@@ -74,44 +86,58 @@
         </div>
 
 
-        <!-- ADDRESS SUCCESS -->
+
+        <!-- =================================================
+             SUCCESS
+        ================================================== -->
 
         @if (addressSuccess) {
 
           <div class="success-message">
+
             {{ addressSuccess }}
+
           </div>
 
         }
 
 
-        <!-- ADDRESS ERROR -->
+
+        <!-- =================================================
+             GENERAL ADDRESS ERROR
+        ================================================== -->
 
         @if (addressError) {
 
           <div class="error-message">
+
             {{ addressError }}
+
           </div>
 
         }
 
 
-        <!-- =========================
+
+        <!-- =================================================
              LOADING
-        ========================= -->
+        ================================================== -->
 
         @if (addressLoading) {
 
           <div class="loading-state">
+
             Loading saved addresses...
+
           </div>
 
         }
 
 
-        <!-- =========================
+
+        <!-- =================================================
              SAVED ADDRESSES
-        ========================= -->
+        ================================================== -->
 
         @if (
           !addressLoading &&
@@ -136,6 +162,7 @@
                   selectedAddressId === address.id
                 "
               >
+
 
                 <label class="address-select">
 
@@ -186,6 +213,7 @@
                 </label>
 
 
+
                 <!-- ADDRESS ACTIONS -->
 
                 <div class="address-actions">
@@ -202,7 +230,9 @@
                   <button
                     type="button"
                     class="delete-address-button"
-                    (click)="openDeleteAddressPopup(address)"
+                    (click)="
+                      openDeleteAddressPopup(address)
+                    "
                   >
                     Delete
                   </button>
@@ -218,9 +248,10 @@
         }
 
 
-        <!-- =========================
+
+        <!-- =================================================
              NO ADDRESS
-        ========================= -->
+        ================================================== -->
 
         @if (
           !addressLoading &&
@@ -240,7 +271,9 @@
               class="add-first-address-button"
               (click)="openAddAddress()"
             >
+
               Add Your Address
+
             </button>
 
           </div>
@@ -248,13 +281,17 @@
         }
 
 
-        <!-- =========================
+
+        <!-- =================================================
              ADDRESS FORM
-        ========================= -->
+        ================================================== -->
 
         @if (isAddressFormOpen) {
 
           <div class="address-form">
+
+
+            <!-- FORM HEADER -->
 
             <div class="form-heading">
 
@@ -295,7 +332,10 @@
             </div>
 
 
-            <!-- FULL NAME -->
+
+            <!-- =================================================
+                 FULL NAME
+            ================================================== -->
 
             <div class="form-group">
 
@@ -309,17 +349,16 @@
                 type="text"
                 name="fullName"
                 [(ngModel)]="addressForm.fullName"
+                (input)="validateFullName()"
+                (blur)="validateFullName()"
                 placeholder="Enter your full name"
               />
 
 
-              @if (
-                addressForm.fullName &&
-                addressForm.fullName.trim().length < 2
-              ) {
+              @if (fullNameError) {
 
-                <small>
-                  Please enter a valid name.
+                <small class="field-error">
+                  {{ fullNameError }}
                 </small>
 
               }
@@ -327,7 +366,10 @@
             </div>
 
 
-            <!-- PHONE -->
+
+            <!-- =================================================
+                 PHONE
+            ================================================== -->
 
             <div class="form-group">
 
@@ -341,18 +383,18 @@
                 type="tel"
                 name="phone"
                 maxlength="10"
+                inputmode="numeric"
                 [(ngModel)]="addressForm.phone"
+                (input)="validatePhone()"
+                (blur)="validatePhone()"
                 placeholder="10 digit mobile number"
               />
 
 
-              @if (
-                addressForm.phone &&
-                addressForm.phone.length !== 10
-              ) {
+              @if (phoneError) {
 
-                <small>
-                  Enter a valid 10 digit phone number.
+                <small class="field-error">
+                  {{ phoneError }}
                 </small>
 
               }
@@ -360,7 +402,10 @@
             </div>
 
 
-            <!-- ADDRESS -->
+
+            <!-- =================================================
+                 ADDRESS
+            ================================================== -->
 
             <div class="form-group">
 
@@ -374,15 +419,32 @@
                 name="addressLine"
                 rows="3"
                 [(ngModel)]="addressForm.addressLine"
+                (input)="validateAddressLine()"
+                (blur)="validateAddressLine()"
                 placeholder="House name, street, landmark..."
               ></textarea>
+
+
+              @if (addressLineError) {
+
+                <small class="field-error">
+                  {{ addressLineError }}
+                </small>
+
+              }
 
             </div>
 
 
-            <!-- CITY + STATE -->
+
+            <!-- =================================================
+                 CITY + STATE
+            ================================================== -->
 
             <div class="form-row">
+
+
+              <!-- CITY -->
 
               <div class="form-group">
 
@@ -396,11 +458,25 @@
                   type="text"
                   name="city"
                   [(ngModel)]="addressForm.city"
+                  (input)="validateCity()"
+                  (blur)="validateCity()"
                   placeholder="City"
                 />
 
+
+                @if (cityError) {
+
+                  <small class="field-error">
+                    {{ cityError }}
+                  </small>
+
+                }
+
               </div>
 
+
+
+              <!-- STATE -->
 
               <div class="form-group">
 
@@ -414,15 +490,29 @@
                   type="text"
                   name="state"
                   [(ngModel)]="addressForm.state"
+                  (input)="validateState()"
+                  (blur)="validateState()"
                   placeholder="State"
                 />
+
+
+                @if (stateError) {
+
+                  <small class="field-error">
+                    {{ stateError }}
+                  </small>
+
+                }
 
               </div>
 
             </div>
 
 
-            <!-- PINCODE -->
+
+            <!-- =================================================
+                 PINCODE
+            ================================================== -->
 
             <div class="form-group">
 
@@ -436,18 +526,18 @@
                 type="text"
                 name="pincode"
                 maxlength="6"
+                inputmode="numeric"
                 [(ngModel)]="addressForm.pincode"
+                (input)="validatePincode()"
+                (blur)="validatePincode()"
                 placeholder="6 digit pincode"
               />
 
 
-              @if (
-                addressForm.pincode &&
-                addressForm.pincode.length !== 6
-              ) {
+              @if (pincodeError) {
 
-                <small>
-                  Enter a valid 6 digit pincode.
+                <small class="field-error">
+                  {{ pincodeError }}
                 </small>
 
               }
@@ -455,18 +545,26 @@
             </div>
 
 
-            <!-- FORM ERROR -->
+
+            <!-- =================================================
+                 GENERAL FORM ERROR
+            ================================================== -->
 
             @if (addressError) {
 
               <div class="error-message">
+
                 {{ addressError }}
+
               </div>
 
             }
 
 
-            <!-- FORM ACTIONS -->
+
+            <!-- =================================================
+                 FORM ACTIONS
+            ================================================== -->
 
             <div class="form-actions">
 
@@ -490,7 +588,9 @@
 
                   Update Address
 
-                } @else {
+                }
+
+                @else {
 
                   Save Address
 
@@ -507,9 +607,10 @@
       </section>
 
 
-      <!-- =========================
+
+      <!-- =====================================================
            PAYMENT METHOD
-      ========================= -->
+      ====================================================== -->
 
       <section class="checkout-section">
 
@@ -530,7 +631,6 @@
         </div>
 
 
-        <!-- PAYMENT ERROR -->
 
         @if (paymentError) {
 
@@ -541,13 +641,17 @@
         }
 
 
+
         <div class="payment-methods">
+
 
           <!-- COD -->
 
           <label
             class="payment-card"
-            [class.selected]="paymentMethod === 'COD'"
+            [class.selected]="
+              paymentMethod === 'COD'
+            "
           >
 
             <input
@@ -574,11 +678,14 @@
           </label>
 
 
+
           <!-- UPI -->
 
           <label
             class="payment-card"
-            [class.selected]="paymentMethod === 'UPI'"
+            [class.selected]="
+              paymentMethod === 'UPI'
+            "
           >
 
             <input
@@ -605,11 +712,14 @@
           </label>
 
 
+
           <!-- CARD -->
 
           <label
             class="payment-card"
-            [class.selected]="paymentMethod === 'CARD'"
+            [class.selected]="
+              paymentMethod === 'CARD'
+            "
           >
 
             <input
@@ -638,9 +748,10 @@
         </div>
 
 
-        <!-- =========================
-             UPI FIELD
-        ========================= -->
+
+        <!-- =================================================
+             UPI
+        ================================================== -->
 
         @if (paymentMethod === 'UPI') {
 
@@ -665,8 +776,10 @@
               !isUpiValid()
             ) {
 
-              <small>
+              <small class="field-error">
+
                 Please enter a valid UPI ID.
+
               </small>
 
             }
@@ -678,14 +791,17 @@
       </section>
 
 
-      <!-- =========================
+
+      <!-- =====================================================
            ORDER ERROR
-      ========================= -->
+      ====================================================== -->
 
       @if (orderError) {
 
         <div class="error-message order-error">
+
           {{ orderError }}
+
         </div>
 
       }
@@ -693,11 +809,13 @@
     </div>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          RIGHT SIDE - ORDER SUMMARY
-    ========================= -->
+    ====================================================== -->
 
     <aside class="order-summary">
+
 
       <div class="summary-header">
 
@@ -705,12 +823,12 @@
           YOUR ORDER
         </p>
 
-
         <h2>
           Order Summary
         </h2>
 
       </div>
+
 
 
       @if (cartItems$ | async; as items) {
@@ -736,11 +854,9 @@
                   {{ item.product.name }}
                 </h3>
 
-
                 <span>
                   Qty: {{ item.quantity }}
                 </span>
-
 
                 <strong>
                   ₹{{ item.product.price * item.quantity }}
@@ -757,7 +873,9 @@
       }
 
 
+
       <div class="summary-divider"></div>
+
 
 
       @if (cartTotal$ | async; as total) {
@@ -768,7 +886,6 @@
             Total
           </span>
 
-
           <strong>
             ₹{{ total }}
           </strong>
@@ -776,6 +893,7 @@
         </div>
 
       }
+
 
 
       <!-- PLACE ORDER -->
@@ -795,7 +913,9 @@
 
           Placing Order...
 
-        } @else {
+        }
+
+        @else {
 
           Place Order
 
@@ -805,7 +925,9 @@
 
 
       <p class="secure-text">
+
         Your order details are securely processed.
+
       </p>
 
     </aside>
@@ -815,9 +937,10 @@
 </div>
 
 
-<!-- ==================================================
-     DELETE ADDRESS CONFIRMATION POPUP
-================================================== -->
+
+<!-- =====================================================
+     DELETE ADDRESS POPUP
+====================================================== -->
 
 @if (
   isDeletePopupOpen &&
@@ -834,7 +957,6 @@
       (click)="$event.stopPropagation()"
     >
 
-      <!-- CLOSE -->
 
       <button
         type="button"
@@ -846,11 +968,11 @@
       </button>
 
 
-      <!-- ICON -->
 
       <div class="delete-popup-icon">
         ×
       </div>
+
 
 
       <p class="delete-popup-label">
@@ -864,12 +986,13 @@
 
 
       <p class="delete-popup-message">
+
         Are you sure you want to remove this
         saved address?
+
       </p>
 
 
-      <!-- ADDRESS PREVIEW -->
 
       <div class="delete-address-preview">
 
@@ -877,16 +1000,13 @@
           {{ addressToDelete.fullName }}
         </strong>
 
-
         <span>
           {{ addressToDelete.phone }}
         </span>
 
-
         <span>
           {{ addressToDelete.addressLine }}
         </span>
-
 
         <span>
           {{ addressToDelete.city }},
@@ -897,7 +1017,6 @@
       </div>
 
 
-      <!-- POPUP ACTIONS -->
 
       <div class="delete-popup-actions">
 
@@ -922,7 +1041,9 @@
 
             Removing...
 
-          } @else {
+          }
+
+          @else {
 
             Remove Address
 
